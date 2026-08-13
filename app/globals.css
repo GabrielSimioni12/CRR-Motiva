@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-display: "Oswald", "Arial Narrow", sans-serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #1c1f22;
+  color: #edede4;
+}
+
+::selection {
+  background-color: #f2b705;
+  color: #1c1f22;
+}
+
+/* dashed road-line divider, used as the page's signature element */
+.km-rule {
+  height: 3px;
+  background-image: repeating-linear-gradient(
+    90deg,
+    #f2b705 0px,
+    #f2b705 22px,
+    transparent 22px,
+    transparent 40px
+  );
+}
+
+.leaflet-container {
+  background: #25282c !important;
+  font-family: var(--font-sans);
+}
+
+.leaflet-popup-content-wrapper {
+  background: #1c1f22;
+  color: #edede4;
+  border-radius: 4px;
+}
+
+.leaflet-popup-tip {
+  background: #1c1f22;
+}
+
+a.leaflet-popup-close-button {
+  color: #edede4 !important;
+}
