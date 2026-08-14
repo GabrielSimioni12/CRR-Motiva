@@ -3,26 +3,27 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+   "dev": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
+    "leaflet": "^1.9.4",
     "next": "^14.2.25",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-leaflet": "^4.2.1",
-    "leaflet": "^1.9.4"
+    "react-leaflet": "^4.2.1"
   },
   "devDependencies": {
-    "typescript": "^5.5.4",
+    "@types/leaflet": "^1.9.12",
     "@types/node": "^20.14.15",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
-    "@types/leaflet": "^1.9.12",
-    "tailwindcss": "^3.4.9",
+    "autoprefixer": "^10.4.20",
+    "cross-env": "^10.1.0",
     "postcss": "^8.4.41",
-    "autoprefixer": "^10.4.20"
+    "tailwindcss": "^3.4.9",
+    "typescript": "^5.5.4"
   }
 }
