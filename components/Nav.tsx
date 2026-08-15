@@ -20,9 +20,6 @@ export default function Nav() {
           <Link href="/mapa" className="hover:text-caution">
             Mapa da rodovia
           </Link>
-          <Link href="/nova-leitura" className="hover:text-caution">
-            Nova leitura
-          </Link>
           <Link href="/foto" className="hover:text-caution">
             Classificar por foto
           </Link>
