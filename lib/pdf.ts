@@ -30,7 +30,7 @@ export async function exportarRelatorioPdf(idsSecoes: string[], nomeArquivo: str
 
     const canvas = await html2canvas(elemento, {
       backgroundColor: "#1C1F22",
-      scale: 2,
+      scale: 1.5,
       useCORS: true,
     });
 
@@ -54,8 +54,11 @@ export async function exportarRelatorioPdf(idsSecoes: string[], nomeArquivo: str
       paginaTemConteudo = false;
     }
 
-    const imgData = canvas.toDataURL("image/png");
-    pdf.addImage(imgData, "PNG", MARGEM_MM, cursorY, largura, altura);
+    // JPEG comprimido em vez de PNG — o relatório é texto/tabela sobre
+    // fundo sólido, não precisa de PNG sem perdas; isso sozinho derruba o
+    // tamanho do arquivo de forma drástica (era ~9,6MB pra 1 página só).
+    const imgData = canvas.toDataURL("image/jpeg", 0.85);
+    pdf.addImage(imgData, "JPEG", MARGEM_MM, cursorY, largura, altura);
     cursorY += altura + ESPACO_ENTRE_SECOES_MM;
     paginaTemConteudo = true;
   }
