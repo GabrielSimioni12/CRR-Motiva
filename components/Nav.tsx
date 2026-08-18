@@ -7,11 +7,8 @@ import ToastAlertas from "./ToastAlertas";
 import { useAlertas } from "@/lib/useAlertas";
 
 const LINKS = [
-  { href: "/", label: "Painel" },
-  { href: "/mapa", label: "Mapa da rodovia" },
+  { href: "/", label: "Dashboard" },
   { href: "/foto", label: "Classificar por foto" },
-  { href: "/simulacao", label: "Simulação sazonal" },
-  { href: "/tendencia", label: "Tendência" },
   { href: "/relatorio", label: "Relatório" },
   { href: "/agenda", label: "Agenda" },
 ];

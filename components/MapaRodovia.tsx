@@ -16,9 +16,10 @@ interface Props {
   pontos: (MapaPonto & { id: number })[];
   selecionadoId: number | null;
   onSelecionar: (ponto: MapaPonto & { id: number }) => void;
+  realcadosId?: Set<number>;
 }
 
-export default function MapaRodovia({ pontos, selecionadoId, onSelecionar }: Props) {
+export default function MapaRodovia({ pontos, selecionadoId, onSelecionar, realcadosId }: Props) {
   const centro: [number, number] = [-23.49, -46.79];
   const [tilesComErro, setTilesComErro] = useState(false);
 
@@ -44,16 +45,17 @@ export default function MapaRodovia({ pontos, selecionadoId, onSelecionar }: Pro
         />
         {pontos.map((p) => {
           const selecionado = p.id === selecionadoId;
+          const realcado = !selecionado && (realcadosId?.has(p.id) ?? false);
           return (
             <CircleMarker
               key={p.id}
               center={[p.centroid_lat, p.centroid_lon]}
-              radius={selecionado ? 8 : 5}
+              radius={selecionado ? 8 : realcado ? 7 : 5}
               pathOptions={{
-                color: selecionado ? "#EDEDE4" : COR[p.prioridade],
+                color: selecionado ? "#EDEDE4" : realcado ? "#F2B705" : COR[p.prioridade],
                 fillColor: COR[p.prioridade],
                 fillOpacity: 0.85,
-                weight: selecionado ? 2 : 1,
+                weight: selecionado ? 2 : realcado ? 3 : 1,
               }}
               eventHandlers={{
                 click: () => onSelecionar(p),
