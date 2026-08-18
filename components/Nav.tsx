@@ -36,6 +36,12 @@ export default function Nav() {
           <Link href="/tendencia" className="hover:text-caution">
             Tendência
           </Link>
+          <Link href="/relatorio" className="hover:text-caution">
+            Relatório
+          </Link>
+          <Link href="/agenda" className="hover:text-caution">
+            Agenda
+          </Link>
           <Link href="/alertas" className="relative flex items-center gap-1.5 hover:text-caution">
             Alertas
             {pendentes > 0 && (
