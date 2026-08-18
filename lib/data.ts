@@ -3,6 +3,9 @@ import prioridadeRaw from "@/data/prioridade.json";
 
 export type Prioridade = "alta" | "media" | "baixa" | "sem_dado";
 
+/** Nível de vegetação considerado crítico (mesmo critério de lib/classificacao.ts: h > 30cm). */
+export const NIVEL_CRITICO = 3;
+
 export interface MapaPonto {
   tipo_rocada: string;
   centroid_lat: number;

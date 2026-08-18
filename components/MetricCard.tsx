@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 
 type Tom = "alta" | "media" | "ok" | undefined;
 
@@ -14,10 +15,12 @@ export default function MetricCard({
   label,
   value,
   tone,
+  atraso = 0,
 }: {
   label: string;
   value: number;
   tone?: Tom;
+  atraso?: number;
 }) {
   const [exibido, setExibido] = useState(0);
 
@@ -38,13 +41,19 @@ export default function MetricCard({
   const cores = tone ? CORES[tone] : { texto: "text-chalk", borda: "border-asphalt-700" };
 
   return (
-    <div className={`border bg-asphalt-800 p-4 ${cores.borda}`}>
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.4, delay: atraso, ease: "easeOut" }}
+      className={`border bg-asphalt-800 p-4 ${cores.borda}`}
+    >
       <p className="font-mono text-[11px] uppercase tracking-widest text-chalkdim">
         {label}
       </p>
       <p className={`mt-2 font-display text-3xl font-semibold tabular-nums ${cores.texto}`}>
         {exibido}
       </p>
-    </div>
+    </motion.div>
   );
 }
