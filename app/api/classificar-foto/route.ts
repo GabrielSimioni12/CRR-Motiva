@@ -1,4 +1,6 @@
 ﻿import { NextRequest, NextResponse } from "next/server";
+import { validarImagem } from "@/lib/upload";
+import { verificarRateLimit } from "@/lib/rateLimit";
 
 const PROMPT = `Você é um assistente que ajuda equipes de manutenção rodoviária a
 avaliar a vegetação às margens de rodovias a partir de uma foto.
@@ -58,9 +60,27 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Sem sistema de login neste projeto — usa o IP como chave de rate
+  // limit mesmo, só pra evitar abuso trivial da chave da API.
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "desconhecido";
+  const rate = verificarRateLimit(ip);
+  if (!rate.permitido) {
+    return NextResponse.json(
+      { error: "Muitas classificações em pouco tempo. Tente de novo em alguns segundos." },
+      { status: 429 }
+    );
+  }
+
   const { imageBase64, mediaType } = await req.json();
   if (!imageBase64 || !mediaType) {
     return NextResponse.json({ error: "Imagem não enviada" }, { status: 400 });
+  }
+
+  // Tamanho real dos bytes decodificados (base64 tem ~33% de overhead).
+  const tamanhoBytes = Math.ceil((imageBase64.length * 3) / 4);
+  const validacao = validarImagem(tamanhoBytes, mediaType);
+  if (!validacao.ok) {
+    return NextResponse.json({ error: validacao.motivo }, { status: 400 });
   }
 
   try {
@@ -90,8 +110,9 @@ export async function POST(req: NextRequest) {
 
     if (!response.ok) {
       const errText = await response.text();
+      console.error("Erro da API Gemini:", response.status, errText);
       return NextResponse.json(
-        { error: `Erro da API Gemini: ${errText}` },
+        { error: "Não foi possível classificar a imagem agora. Tente novamente em instantes." },
         { status: response.status }
       );
     }
@@ -108,8 +129,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(parsed);
   } catch (err) {
+    console.error("Falha ao processar a resposta do modelo Gemini:", err);
     return NextResponse.json(
-      { error: `Falha ao processar a resposta do modelo: ${String(err)}` },
+      { error: "Falha ao processar a resposta do modelo. Tente com outra foto." },
       { status: 500 }
     );
   }

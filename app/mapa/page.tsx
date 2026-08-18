@@ -3,7 +3,7 @@ import MapaComPainel from "@/components/MapPaniel";
 
 export default function MapaPage() {
   return (
-    <main className="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-10">
+    <main id="conteudo-principal" className="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-10">
       <div>
         <h1 className="font-display text-2xl font-semibold uppercase tracking-wide text-chalk">
           Mapa da rodovia — SP-021

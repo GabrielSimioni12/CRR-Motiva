@@ -3,6 +3,9 @@ import prioridadeRaw from "@/data/prioridade.json";
 
 export type Prioridade = "alta" | "media" | "baixa" | "sem_dado";
 
+/** Nível de vegetação considerado crítico (mesmo critério de lib/classificacao.ts: h > 30cm). */
+export const NIVEL_CRITICO = 3;
+
 export interface MapaPonto {
   tipo_rocada: string;
   centroid_lat: number;
@@ -34,7 +37,7 @@ export function getResumo() {
   const alta = trechosPrioridade.filter((t) => t.prioridade === "alta").length;
   const media = trechosPrioridade.filter((t) => t.prioridade === "media").length;
   const baixa = trechosPrioridade.filter((t) => t.prioridade === "baixa").length;
-  const criticosAgora = trechosPrioridade.filter((t) => t.nivel_semana2 >= 3).length;
+  const criticosAgora = trechosPrioridade.filter((t) => t.nivel_semana2 >= NIVEL_CRITICO).length;
 
   return { total, alta, media, baixa, criticosAgora };
 }

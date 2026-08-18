@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { classificarAltura, ResultadoClassificacao } from "@/lib/classificacao";
 import PrioridadeBadge from "@/components/PrioridadeBadge";
+import { classificarAltura, ResultadoClassificacao } from "@/lib/classificacao";
 
-interface Leitura {
+interface LeituraManual {
   id: number;
   local: string;
   alturaCm: number;
@@ -12,10 +12,10 @@ interface Leitura {
   horario: string;
 }
 
-export default function NovaLeituraPage() {
+export default function LeituraManualForm() {
   const [local, setLocal] = useState("");
   const [altura, setAltura] = useState("");
-  const [leituras, setLeituras] = useState<Leitura[]>([]);
+  const [leituras, setLeituras] = useState<LeituraManual[]>([]);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -23,7 +23,7 @@ export default function NovaLeituraPage() {
     if (isNaN(alturaNum) || alturaNum < 0) return;
 
     const resultado = classificarAltura(alturaNum);
-    const nova: Leitura = {
+    const nova: LeituraManual = {
       id: Date.now(),
       local: local.trim() || "Ponto sem nome",
       alturaCm: alturaNum,
@@ -36,26 +36,17 @@ export default function NovaLeituraPage() {
   }
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-10">
-      <h1 className="font-display text-2xl font-semibold uppercase tracking-wide text-chalk">
+    <section className="mt-14 border-t border-asphalt-700 pt-10">
+      <h2 className="font-display text-xl font-semibold uppercase tracking-wide text-chalk">
         Nova leitura manual
-      </h1>
+      </h2>
       <p className="mt-2 max-w-2xl font-sans text-sm text-chalkdim">
-        Digite a altura da vegetação medida em campo (trena ou sensor) e a
-        plataforma classifica na hora, usando a mesma regra aplicada aos
-        dados reais da SP-021. Esse é o mesmo fluxo entrada → processamento
-        → saída — hoje a entrada é manual, no futuro pode vir de um sensor
-        ou de foto (veja a aba{" "}
-        <a href="/foto" className="text-caution underline">
-          Classificar por foto
-        </a>
-        ).
+        Prefere medir com trena em vez de foto? Digite a altura direto
+        aqui — a plataforma classifica na hora, com a mesma regra usada
+        acima e nos dados reais da SP-021.
       </p>
 
-      <form
-        onSubmit={handleSubmit}
-        className="mt-8 flex flex-wrap items-end gap-4 border border-asphalt-700 bg-asphalt-800 p-5"
-      >
+      <form onSubmit={handleSubmit} className="mt-6 flex flex-wrap items-end gap-4 border border-asphalt-700 bg-asphalt-800 p-5">
         <div className="flex flex-col gap-1">
           <label className="font-mono text-[11px] uppercase tracking-widest text-chalkdim">
             Local / trecho
@@ -89,19 +80,16 @@ export default function NovaLeituraPage() {
       </form>
 
       {leituras.length === 0 ? (
-        <p className="mt-10 font-mono text-sm text-chalkdim">
-          Nenhuma leitura registrada ainda nesta sessão.
+        <p className="mt-8 font-mono text-sm text-chalkdim">
+          Nenhuma leitura manual registrada ainda nesta sessão.
         </p>
       ) : (
-        <div className="mt-10 space-y-3">
+        <div className="mt-8 space-y-3">
           <p className="font-mono text-[11px] uppercase tracking-widest text-chalkdim">
             Leituras desta sessão
           </p>
           {leituras.map((l) => (
-            <div
-              key={l.id}
-              className="flex flex-wrap items-center justify-between gap-3 border border-asphalt-700 bg-asphalt-800 p-4"
-            >
+            <div key={l.id} className="flex flex-wrap items-center justify-between gap-3 border border-asphalt-700 bg-asphalt-800 p-4">
               <div>
                 <p className="font-sans text-sm text-chalk">{l.local}</p>
                 <p className="font-mono text-xs text-chalkdim">
@@ -109,9 +97,7 @@ export default function NovaLeituraPage() {
                 </p>
               </div>
               <div className="flex items-center gap-3">
-                <span className="font-sans text-xs text-chalkdim">
-                  {l.resultado.recomendacao}
-                </span>
+                <span className="font-sans text-xs text-chalkdim">{l.resultado.recomendacao}</span>
                 <PrioridadeBadge prioridade={l.resultado.prioridade} />
               </div>
             </div>
@@ -119,11 +105,11 @@ export default function NovaLeituraPage() {
         </div>
       )}
 
-      <p className="mt-10 border-t border-asphalt-700 pt-4 font-sans text-xs text-chalkdim">
-        Essas leituras ficam só nesta sessão do navegador (não são salvas em
-        nenhum banco ainda) — próximo passo é persistir isso e juntar com os
-        dados reais da SP-021 no mesmo painel.
+      <p className="mt-6 font-sans text-xs text-chalkdim">
+        Essas leituras ficam só nesta sessão do navegador (não são salvas
+        em nenhum banco ainda) — próximo passo é persistir isso e juntar
+        com os dados reais da SP-021 no mesmo painel.
       </p>
-    </main>
+    </section>
   );
 }
