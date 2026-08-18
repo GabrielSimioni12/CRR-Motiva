@@ -18,7 +18,7 @@ export default function Home() {
   ];
 
   return (
-    <main className="mx-auto max-w-6xl px-6 pb-24">
+    <main id="conteudo-principal" className="mx-auto max-w-6xl px-6 pb-24">
       {/* HERO — a tese do projeto */}
       <section className="relative -mx-6 overflow-hidden border-b border-asphalt-700 px-6 py-20">
         <HeroRodovia />

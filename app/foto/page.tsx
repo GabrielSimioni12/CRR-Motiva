@@ -194,7 +194,7 @@ export default function ClassificarPorFotoPage() {
   const confPct = resultado ? CONFIANCA_PCT[resultado.confianca] : 0;
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-10">
+    <main id="conteudo-principal" className="mx-auto max-w-4xl px-6 py-10">
       <div className="mb-6 inline-block border border-caution/50 bg-caution/10 px-3 py-1 font-mono text-[11px] uppercase tracking-widest text-caution">
         Protótipo — classificação por IA multimodal
       </div>

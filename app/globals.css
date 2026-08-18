@@ -22,6 +22,11 @@ body {
   color: #1c1f22;
 }
 
+:focus-visible {
+  outline: 2px solid #f2b705;
+  outline-offset: 2px;
+}
+
 /* dashed road-line divider, used as the page's signature element */
 .km-rule {
   height: 3px;

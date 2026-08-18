@@ -45,7 +45,7 @@ export default function RelatorioPage() {
   }
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-10">
+    <main id="conteudo-principal" className="mx-auto max-w-4xl px-6 py-10">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="font-display text-2xl font-semibold uppercase tracking-wide text-chalk">
           Relatório mensal
@@ -99,7 +99,7 @@ export default function RelatorioPage() {
           <p className="font-mono text-[11px] uppercase tracking-widest text-chalkdim">
             Resumo do período
           </p>
-          <div className="mt-3 grid grid-cols-5 gap-3">
+          <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
             <ResumoBloco label="monitorados" valor={resumo.total} />
             <ResumoBloco label="prioridade alta" valor={resumo.alta} tom="alta" />
             <ResumoBloco label="prioridade média" valor={resumo.media} tom="media" />

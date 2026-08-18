@@ -2,6 +2,14 @@ import { TrechoPrioridade } from "@/lib/data";
 import PrioridadeBadge from "./PrioridadeBadge";
 
 export default function TabelaUrgentes({ trechos }: { trechos: TrechoPrioridade[] }) {
+  if (trechos.length === 0) {
+    return (
+      <div className="border border-dashed border-asphalt-700 p-8 text-center font-sans text-sm text-chalkdim">
+        Nenhum trecho urgente no momento.
+      </div>
+    );
+  }
+
   return (
     <div className="overflow-x-auto border border-asphalt-700">
       <table className="w-full text-left text-sm">

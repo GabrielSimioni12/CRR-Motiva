@@ -66,29 +66,31 @@ export default function AgendaCalendario({
     const dias = Array.from({ length: 7 }, (_, i) => adicionarDias(inicio, i));
 
     return (
-      <div className="grid grid-cols-7 gap-2">
-        {dias.map((dia) => {
-          const iso = formatarDataISO(dia);
-          const itens = porDia.get(iso) ?? [];
-          return (
-            <div
-              key={iso}
-              className="flex min-h-[140px] flex-col gap-1 border border-asphalt-700 bg-asphalt-800 p-2"
-            >
-              <button
-                onClick={() => onSelecionarDia(iso)}
-                className="text-left font-mono text-[10px] uppercase tracking-wide text-chalkdim hover:text-caution"
+      <div className="overflow-x-auto pb-2">
+        <div className="grid min-w-[640px] grid-cols-7 gap-2">
+          {dias.map((dia) => {
+            const iso = formatarDataISO(dia);
+            const itens = porDia.get(iso) ?? [];
+            return (
+              <div
+                key={iso}
+                className="flex min-h-[140px] flex-col gap-1 border border-asphalt-700 bg-asphalt-800 p-2"
               >
-                {NOMES_DIAS_SEMANA[dia.getDay()]} {dia.getDate()}
-              </button>
-              <div className="flex flex-1 flex-col gap-1 overflow-y-auto">
-                {itens.map((a) => (
-                  <ChipAgendamento key={a.id} agendamento={a} onRemover={onRemover} />
-                ))}
+                <button
+                  onClick={() => onSelecionarDia(iso)}
+                  className="text-left font-mono text-[10px] uppercase tracking-wide text-chalkdim hover:text-caution"
+                >
+                  {NOMES_DIAS_SEMANA[dia.getDay()]} {dia.getDate()}
+                </button>
+                <div className="flex flex-1 flex-col gap-1 overflow-y-auto">
+                  {itens.map((a) => (
+                    <ChipAgendamento key={a.id} agendamento={a} onRemover={onRemover} />
+                  ))}
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     );
   }
@@ -97,40 +99,42 @@ export default function AgendaCalendario({
   const dias = Array.from({ length: 42 }, (_, i) => adicionarDias(inicioGrade, i));
 
   return (
-    <div className="grid grid-cols-7 gap-1">
-      {NOMES_DIAS_SEMANA.map((n) => (
-        <div key={n} className="px-1 py-1 font-mono text-[10px] uppercase tracking-widest text-chalkdim">
-          {n}
-        </div>
-      ))}
-      {dias.map((dia) => {
-        const iso = formatarDataISO(dia);
-        const itens = porDia.get(iso) ?? [];
-        const foraDoMes = !mesmoMes(dia, referencia);
-        return (
-          <div
-            key={iso}
-            className={`flex min-h-[84px] flex-col gap-1 border border-asphalt-700 p-1.5 ${
-              foraDoMes ? "bg-asphalt-900/50 opacity-50" : "bg-asphalt-800"
-            }`}
-          >
-            <button
-              onClick={() => onSelecionarDia(iso)}
-              className="text-left font-mono text-[10px] text-chalkdim hover:text-caution"
-            >
-              {dia.getDate()}
-            </button>
-            <div className="flex flex-1 flex-col gap-1 overflow-hidden">
-              {itens.slice(0, 2).map((a) => (
-                <ChipAgendamento key={a.id} agendamento={a} onRemover={onRemover} />
-              ))}
-              {itens.length > 2 && (
-                <span className="font-mono text-[9px] text-chalkdim">+{itens.length - 2} mais</span>
-              )}
-            </div>
+    <div className="overflow-x-auto pb-2">
+      <div className="grid min-w-[640px] grid-cols-7 gap-1">
+        {NOMES_DIAS_SEMANA.map((n) => (
+          <div key={n} className="px-1 py-1 font-mono text-[10px] uppercase tracking-widest text-chalkdim">
+            {n}
           </div>
-        );
-      })}
+        ))}
+        {dias.map((dia) => {
+          const iso = formatarDataISO(dia);
+          const itens = porDia.get(iso) ?? [];
+          const foraDoMes = !mesmoMes(dia, referencia);
+          return (
+            <div
+              key={iso}
+              className={`flex min-h-[84px] flex-col gap-1 border border-asphalt-700 p-1.5 ${
+                foraDoMes ? "bg-asphalt-900/50 opacity-50" : "bg-asphalt-800"
+              }`}
+            >
+              <button
+                onClick={() => onSelecionarDia(iso)}
+                className="text-left font-mono text-[10px] text-chalkdim hover:text-caution"
+              >
+                {dia.getDate()}
+              </button>
+              <div className="flex flex-1 flex-col gap-1 overflow-hidden">
+                {itens.slice(0, 2).map((a) => (
+                  <ChipAgendamento key={a.id} agendamento={a} onRemover={onRemover} />
+                ))}
+                {itens.length > 2 && (
+                  <span className="font-mono text-[9px] text-chalkdim">+{itens.length - 2} mais</span>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

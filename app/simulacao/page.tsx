@@ -48,7 +48,7 @@ export default function SimulacaoPage() {
   const projecoes = projetarTrechos(trechosPrioridade, cenario, climaDados);
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-10">
+    <main id="conteudo-principal" className="mx-auto max-w-6xl px-6 py-10">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="font-display text-2xl font-semibold uppercase tracking-wide text-chalk">
           Simulação de crescimento sazonal

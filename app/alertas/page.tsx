@@ -17,7 +17,7 @@ export default function AlertasPage() {
   const pendentes = alertas.filter((a) => a.status === "pendente").length;
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-10">
+    <main id="conteudo-principal" className="mx-auto max-w-4xl px-6 py-10">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="font-display text-2xl font-semibold uppercase tracking-wide text-chalk">
           Alertas de trechos críticos

@@ -3,6 +3,7 @@
 import { useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { MapaPonto, Prioridade } from "@/lib/data";
+import { LABEL_PRIORIDADE } from "@/lib/labels";
 import PainelDetalhePonto from "./PainelDetalhePonto";
 
 const MapaRodovia = dynamic(() => import("./MapaRodovia"), {
@@ -15,10 +16,10 @@ const MapaRodovia = dynamic(() => import("./MapaRodovia"), {
 });
 
 const FILTROS: { valor: Prioridade; label: string; cor: string }[] = [
-    { valor: "alta", label: "cortar", cor: "text-route-alta" },
-    { valor: "media", label: "agendado", cor: "text-route-media" },
-    { valor: "baixa", label: "ok", cor: "text-route-ok" },
-    { valor: "sem_dado", label: "sem dado", cor: "text-chalkdim" },
+    { valor: "alta", label: LABEL_PRIORIDADE.alta, cor: "text-route-alta" },
+    { valor: "media", label: LABEL_PRIORIDADE.media, cor: "text-route-media" },
+    { valor: "baixa", label: LABEL_PRIORIDADE.baixa, cor: "text-route-ok" },
+    { valor: "sem_dado", label: LABEL_PRIORIDADE.sem_dado, cor: "text-chalkdim" },
 ];
 
 type PontoComId = MapaPonto & { id: number };
@@ -183,12 +184,19 @@ export default function MapaComPainel({ pontos }: { pontos: MapaPonto[] }) {
             </div>
 
             <div className="grid gap-4 lg:grid-cols-[1fr_340px]">
-                <div className="h-[600px] w-full border border-asphalt-700">
+                <div className="relative h-[600px] w-full border border-asphalt-700">
                     <MapaRodovia
                         pontos={pontosFiltrados}
                         selecionadoId={selecionado?.id ?? null}
                         onSelecionar={setSelecionado}
                     />
+                    {pontosFiltrados.length === 0 && (
+                        <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-asphalt-900/85">
+                            <p className="border border-dashed border-asphalt-700 bg-asphalt-800 px-4 py-3 text-center font-mono text-sm text-chalkdim">
+                                nenhum trecho para os filtros selecionados
+                            </p>
+                        </div>
+                    )}
                 </div>
 
                 <div className="h-[600px]">
