@@ -13,17 +13,41 @@ reais de rodovia):
   2 = 10 a 30 cm (atenção, agendar corte)
   3 = h > 30 cm  (crítico, cortar com urgência)
 
+Além disso, identifique a área da imagem (em porcentagem, 0 a 100, origem
+no canto superior esquerdo) onde está a vegetação predominante que você
+usou para a estimativa. Essa área é usada só para desenhar uma marcação
+visual sobre a foto, então uma aproximação razoável é suficiente.
+
 Responda SOMENTE em JSON, neste formato exato, sem markdown e sem texto
 antes ou depois:
 {
   "nivel": 1 | 2 | 3,
   "altura_estimada_cm": number,
   "confianca": "baixa" | "media" | "alta",
-  "justificativa": "string curta explicando o que na imagem levou a essa estimativa"
+  "justificativa": "string curta explicando o que na imagem levou a essa estimativa",
+  "regiao_analisada": {
+    "x": number,
+    "y": number,
+    "largura": number,
+    "altura": number
+  }
 }
 
 Se a imagem não mostrar vegetação de forma clara, responda com
 "confianca": "baixa" e explique isso na justificativa.`;
+
+function regiaoValida(
+  r: unknown
+): r is { x: number; y: number; largura: number; altura: number } {
+  if (!r || typeof r !== "object") return false;
+  const o = r as Record<string, unknown>;
+  return (
+    typeof o.x === "number" &&
+    typeof o.y === "number" &&
+    typeof o.largura === "number" &&
+    typeof o.altura === "number"
+  );
+}
 
 export async function POST(req: NextRequest) {
   const apiKey = process.env.GEMINI_API_KEY;
@@ -77,6 +101,11 @@ export async function POST(req: NextRequest) {
     const cleaned = raw.replace(/```json|```/g, "").trim();
 
     const parsed = JSON.parse(cleaned);
+
+    if (!regiaoValida(parsed.regiao_analisada)) {
+      parsed.regiao_analisada = { x: 15, y: 25, largura: 70, altura: 55 };
+    }
+
     return NextResponse.json(parsed);
   } catch (err) {
     return NextResponse.json(

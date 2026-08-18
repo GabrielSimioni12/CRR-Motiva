@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { MapaPonto, Prioridade } from "@/lib/data";
 import PainelDetalhePonto from "./PainelDetalhePonto";
@@ -21,8 +21,28 @@ const FILTROS: { valor: Prioridade; label: string; cor: string }[] = [
     { valor: "sem_dado", label: "sem dado", cor: "text-chalkdim" },
 ];
 
+type PontoComId = MapaPonto & { id: number };
+
+function projetarPonto(p: PontoComId, semanas: number): PontoComId {
+    if (semanas <= 0 || p.dias_estimados_ate_critico === null) return p;
+
+    const diasRestantes = p.dias_estimados_ate_critico - semanas * 7;
+    let prioridade: Prioridade = p.prioridade;
+
+    if (diasRestantes <= 0) {
+        prioridade = "alta";
+    } else if (
+        diasRestantes <= 14 &&
+        (p.prioridade === "baixa" || p.prioridade === "sem_dado")
+    ) {
+        prioridade = "media";
+    }
+
+    return { ...p, prioridade, dias_estimados_ate_critico: diasRestantes };
+}
+
 export default function MapaComPainel({ pontos }: { pontos: MapaPonto[] }) {
-    const pontosComId = useMemo(
+    const pontosComId = useMemo<PontoComId[]>(
         () => pontos.map((p, i) => ({ ...p, id: i })),
         [pontos]
     );
@@ -30,9 +50,13 @@ export default function MapaComPainel({ pontos }: { pontos: MapaPonto[] }) {
     const [ativos, setAtivos] = useState<Set<Prioridade>>(
         new Set(["alta", "media", "baixa", "sem_dado"])
     );
-    const [selecionado, setSelecionado] = useState<(MapaPonto & { id: number }) | null>(
-        null
-    );
+    const [selecionado, setSelecionado] = useState<PontoComId | null>(null);
+
+    const [semanaSimulada, setSemanaSimulada] = useState(0);
+    const [revelados, setRevelados] = useState<Set<number>>(new Set());
+    const [animando, setAnimando] = useState(false);
+    const alvoRef = useRef(0);
+    const intervaloRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     function alternarFiltro(p: Prioridade) {
         setAtivos((prev) => {
@@ -46,13 +70,99 @@ export default function MapaComPainel({ pontos }: { pontos: MapaPonto[] }) {
         });
     }
 
+    function simularProximaSemana() {
+        if (animando) return;
+        const alvo = semanaSimulada + 1;
+        alvoRef.current = alvo;
+        setAnimando(true);
+        setRevelados(new Set());
+
+        const ordem = [...pontosComId]
+            .sort((a, b) => a.km_estimado - b.km_estimado)
+            .map((p) => p.id);
+
+        let i = 0;
+        const passo = 14;
+        intervaloRef.current = setInterval(() => {
+            setRevelados((prev) => {
+                const novo = new Set(prev);
+                for (let k = 0; k < passo && i < ordem.length; k++, i++) {
+                    novo.add(ordem[i]);
+                }
+                return novo;
+            });
+            if (i >= ordem.length) {
+                if (intervaloRef.current) clearInterval(intervaloRef.current);
+                setSemanaSimulada(alvoRef.current);
+                setAnimando(false);
+                setRevelados(new Set());
+            }
+        }, 18);
+    }
+
+    function reiniciarSimulacao() {
+        if (intervaloRef.current) clearInterval(intervaloRef.current);
+        setAnimando(false);
+        setRevelados(new Set());
+        setSemanaSimulada(0);
+    }
+
+    const pontosProjetados = useMemo(() => {
+        return pontosComId.map((p) => {
+            const semanasAplicar = animando
+                ? revelados.has(p.id)
+                    ? alvoRef.current
+                    : semanaSimulada
+                : semanaSimulada;
+            return projetarPonto(p, semanasAplicar);
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [pontosComId, semanaSimulada, animando, revelados]);
+
     const pontosFiltrados = useMemo(
-        () => pontosComId.filter((p) => ativos.has(p.prioridade)),
-        [pontosComId, ativos]
+        () => pontosProjetados.filter((p) => ativos.has(p.prioridade)),
+        [pontosProjetados, ativos]
     );
+
+    const contagem = useMemo(() => {
+        const c: Record<Prioridade, number> = { alta: 0, media: 0, baixa: 0, sem_dado: 0 };
+        pontosProjetados.forEach((p) => { c[p.prioridade] += 1; });
+        return c;
+    }, [pontosProjetados]);
 
     return (
         <div className="flex flex-col gap-4">
+            <div className="flex flex-wrap items-center justify-between gap-3 border border-asphalt-700 bg-asphalt-800 px-4 py-3">
+                <div className="flex items-center gap-2">
+                    <span
+                        className={`h-2 w-2 rounded-full ${semanaSimulada > 0 ? "animate-pulse bg-caution" : "bg-route-ok"}`}
+                    />
+                    <span className="font-mono text-xs uppercase tracking-widest text-chalkdim">
+                        {semanaSimulada === 0
+                            ? "visualizando dado real (13/03–20/03)"
+                            : `simulação: +${semanaSimulada} semana${semanaSimulada > 1 ? "s" : ""} de crescimento`}
+                    </span>
+                </div>
+                <div className="flex gap-2">
+                    {semanaSimulada > 0 && (
+                        <button
+                            onClick={reiniciarSimulacao}
+                            disabled={animando}
+                            className="border border-asphalt-600 px-3 py-1.5 font-display text-xs font-semibold uppercase tracking-wide text-chalk hover:border-chalkdim disabled:opacity-40"
+                        >
+                            reiniciar
+                        </button>
+                    )}
+                    <button
+                        onClick={simularProximaSemana}
+                        disabled={animando}
+                        className="border border-caution bg-caution px-3 py-1.5 font-display text-xs font-semibold uppercase tracking-wide text-asphalt-900 hover:bg-caution/90 disabled:opacity-50"
+                    >
+                        {animando ? "simulando..." : "simular +1 semana"}
+                    </button>
+                </div>
+            </div>
+
             <div className="flex flex-wrap items-center gap-2">
                 <span className="mr-2 font-mono text-[11px] uppercase tracking-widest text-chalkdim">
                     filtrar:
@@ -63,12 +173,10 @@ export default function MapaComPainel({ pontos }: { pontos: MapaPonto[] }) {
                         <button
                             key={f.valor}
                             onClick={() => alternarFiltro(f.valor)}
-                            className={`border px-3 py-1.5 font-mono text-xs uppercase tracking-wide transition-opacity ${ativo
-                                    ? `border-asphalt-600 ${f.cor} opacity-100`
-                                    : "border-asphalt-700 text-chalkdim opacity-40"
+                            className={`border px-3 py-1.5 font-mono text-xs uppercase tracking-wide transition-opacity ${ativo ? `border-asphalt-600 ${f.cor} opacity-100` : "border-asphalt-700 text-chalkdim opacity-40"
                                 }`}
                         >
-                            {f.label} ({pontosComId.filter((p) => p.prioridade === f.valor).length})
+                            {f.label} ({contagem[f.valor]})
                         </button>
                     );
                 })}
