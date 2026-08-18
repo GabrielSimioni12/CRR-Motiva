@@ -6,8 +6,9 @@ export async function GET() {
     const resumo = await buscarResumoClimatico();
     return NextResponse.json(resumo);
   } catch (err) {
+    console.error("Falha ao buscar dados da Open-Meteo:", err);
     return NextResponse.json(
-      { error: `Falha ao buscar dados da Open-Meteo: ${String(err)}` },
+      { error: "Não foi possível buscar o clima histórico agora." },
       { status: 502 }
     );
   }

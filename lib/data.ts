@@ -37,7 +37,7 @@ export function getResumo() {
   const alta = trechosPrioridade.filter((t) => t.prioridade === "alta").length;
   const media = trechosPrioridade.filter((t) => t.prioridade === "media").length;
   const baixa = trechosPrioridade.filter((t) => t.prioridade === "baixa").length;
-  const criticosAgora = trechosPrioridade.filter((t) => t.nivel_semana2 >= 3).length;
+  const criticosAgora = trechosPrioridade.filter((t) => t.nivel_semana2 >= NIVEL_CRITICO).length;
 
   return { total, alta, media, baixa, criticosAgora };
 }

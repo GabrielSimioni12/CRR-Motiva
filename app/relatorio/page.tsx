@@ -38,7 +38,8 @@ export default function RelatorioPage() {
       const nomeArquivo = `relatorio-sp021-${new Date().toISOString().slice(0, 10)}.pdf`;
       await exportarRelatorioPdf(SECOES_RELATORIO, nomeArquivo);
     } catch (e) {
-      setErro(String(e));
+      console.error("Falha ao gerar PDF do relatório:", e);
+      setErro("Não foi possível gerar o PDF agora. Tente novamente.");
     } finally {
       setGerando(false);
     }
@@ -67,7 +68,7 @@ export default function RelatorioPage() {
 
       {erro && (
         <div className="mt-4 border border-route-alta/40 bg-route-alta/10 p-4 font-sans text-sm text-route-alta">
-          Não foi possível gerar o PDF: {erro}
+          {erro}
         </div>
       )}
 

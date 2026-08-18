@@ -36,7 +36,10 @@ export default function SimulacaoPage() {
         }
       })
       .catch((err) => {
-        if (!cancelado) setClima({ status: "erro", mensagem: String(err) });
+        console.error("Falha ao buscar clima histórico:", err);
+        if (!cancelado) {
+          setClima({ status: "erro", mensagem: "Falha de conexão ao buscar o clima." });
+        }
       });
     return () => {
       cancelado = true;

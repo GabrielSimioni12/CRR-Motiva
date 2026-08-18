@@ -61,7 +61,7 @@ export default function Home() {
       </section>
 
       {/* MÉTRICAS */}
-      <section className="grid grid-cols-2 gap-4 py-12 md:grid-cols-5">
+      <section className="grid grid-cols-2 gap-4 py-12 sm:grid-cols-3 md:grid-cols-5">
         <MetricCard label="Trechos monitorados" value={resumo.total} atraso={0} />
         <MetricCard label="Prioridade alta" value={resumo.alta} tone="alta" atraso={0.06} />
         <MetricCard label="Prioridade média" value={resumo.media} tone="media" atraso={0.12} />
