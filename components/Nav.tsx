@@ -9,6 +9,7 @@ import { useAlertas } from "@/lib/useAlertas";
 
 const LINKS = [
   { href: "/", label: "Dashboard" },
+  { href: "/mapa", label: "Mapa da rodovia" },
   { href: "/foto", label: "Classificar por foto" },
   { href: "/relatorio", label: "Relatório" },
   { href: "/agenda", label: "Agenda" },

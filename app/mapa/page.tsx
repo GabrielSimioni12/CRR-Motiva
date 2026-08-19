@@ -1,6 +1,34 @@
-import { redirect } from "next/navigation";
+import Link from "next/link";
+import { mapaPontos } from "@/lib/data";
+import MapaComPainel from "@/components/MapPaniel";
 
-// O mapa virou uma sub-aba do Dashboard unificado (/).
-export default function MapaRedirect() {
-  redirect("/?tab=mapa-tendencia");
+export default function MapaPage() {
+  return (
+    <main id="conteudo-principal" className="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-10">
+      <div>
+        <p className="font-mono text-xs uppercase tracking-widest text-caution">
+          <Link href="/" className="hover:text-chalk">
+            Dashboard
+          </Link>
+          {" / "}Mapa
+        </p>
+        <h1 className="mt-2 font-display text-2xl font-semibold uppercase tracking-wide text-chalk">
+          Mapa da rodovia — SP-021
+        </h1>
+        <p className="mt-1 font-sans text-sm text-chalkdim">
+          {mapaPontos.length} pontos classificados a partir dos dados reais
+          de campo (13/03–20/03). Clique em um ponto para ver detalhes e a
+          imagem do local.
+        </p>
+      </div>
+
+      <MapaComPainel pontos={mapaPontos} />
+
+      <p className="font-sans text-xs text-chalkdim">
+        Coordenadas extraídas dos polígonos reais de classificação de roçada
+        fornecidos pela Motiva (KML), com o km estimado por proximidade aos
+        marcos oficiais de quilometragem da rodovia.
+      </p>
+    </main>
+  );
 }
