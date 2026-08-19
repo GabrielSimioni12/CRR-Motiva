@@ -1,8 +1,9 @@
 "use client";
 
 import "leaflet/dist/leaflet.css";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { MapContainer, TileLayer, CircleMarker } from "react-leaflet";
+import type { LatLngBoundsExpression } from "leaflet";
 import { MapaPonto, Prioridade } from "@/lib/data";
 
 const COR: Record<Prioridade, string> = {
@@ -19,9 +20,42 @@ interface Props {
   realcadosId?: Set<number>;
 }
 
+// Margem de segurança ao redor dos pontos reais da rota, em graus
+// (~0.02 graus equivale a pouco mais de 2km, o suficiente pra dar
+// respiro visual sem deixar o mapa "fugir" pra fora do trecho).
+const MARGEM = 0.02;
+
 export default function MapaRodovia({ pontos, selecionadoId, onSelecionar, realcadosId }: Props) {
-  const centro: [number, number] = [-23.49, -46.79];
   const [tilesComErro, setTilesComErro] = useState(false);
+
+  const { centro, bounds } = useMemo(() => {
+    if (pontos.length === 0) {
+      // fallback: centro aproximado da SP-021 caso ainda não haja pontos carregados
+      return {
+        centro: [-23.49, -46.79] as [number, number],
+        bounds: undefined as LatLngBoundsExpression | undefined,
+      };
+    }
+
+    const lats = pontos.map((p) => p.centroid_lat);
+    const lons = pontos.map((p) => p.centroid_lon);
+    const norte = Math.max(...lats) + MARGEM;
+    const sul = Math.min(...lats) - MARGEM;
+    const leste = Math.max(...lons) + MARGEM;
+    const oeste = Math.min(...lons) - MARGEM;
+
+    const boundsCalculados: LatLngBoundsExpression = [
+      [sul, oeste],
+      [norte, leste],
+    ];
+
+    const centroCalculado: [number, number] = [
+      (norte + sul) / 2,
+      (leste + oeste) / 2,
+    ];
+
+    return { centro: centroCalculado, bounds: boundsCalculados };
+  }, [pontos]);
 
   return (
     <div className="relative h-full w-full">
@@ -35,7 +69,12 @@ export default function MapaRodovia({ pontos, selecionadoId, onSelecionar, realc
       <MapContainer
         center={centro}
         zoom={11}
+        minZoom={10}
+        maxZoom={17}
         scrollWheelZoom
+        bounds={bounds}
+        maxBounds={bounds}
+        maxBoundsViscosity={1.0}
         style={{ height: "100%", width: "100%" }}
       >
         <TileLayer

@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import MapaTendenciaPanel from "./MapaTendenciaPanel";
+import MapaTendenciaPanel from "./MapaTendenciaPainel";
 import SimulacaoPanel from "./SimulacaoPanel";
 import { trechosPrioridade } from "@/lib/data";
 
@@ -51,7 +51,7 @@ export default function PainelDados() {
               : "border-asphalt-700 text-chalkdim hover:border-chalkdim"
           }`}
         >
-          Mapa & Tendência
+          Tendência
         </button>
         <button
           onClick={() => atualizarParams({ tab: "simulacao" })}

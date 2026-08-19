@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo } from "react";
-import MapaComPainel from "@/components/MapPaniel";
 import GraficoTendencia from "@/components/GraficoTendencia";
 import GraficoBarras from "./GraficoBarras";
 import PrioridadeBadge from "@/components/PrioridadeBadge";
@@ -42,20 +41,21 @@ export default function MapaTendenciaPanel({
     <div className="space-y-8">
       <div>
         <h2 className="font-display text-xl font-semibold uppercase tracking-wide text-chalk">
-          Mapa da rodovia — SP-021
+          Tendência por trecho
         </h2>
         <p className="mt-1 max-w-2xl font-sans text-sm text-chalkdim">
-          {mapaPontos.length} pontos classificados a partir dos dados de campo
-          (13/03–20/03). Selecionar um trecho abaixo realça o grupo de pontos
-          correspondente no mapa (destacado em amarelo) — mapa e tabela de
-          trechos usam bases de dados diferentes e sem uma chave exata entre
-          si, então o realce é por proximidade de km, não um ponto único.
+          Selecione um trecho para ver como o nível de vegetação evoluiu
+          entre as duas leituras reais de campo (13/03–20/03) e a projeção de
+          tendência a partir daí. Para ver todos os trechos no mapa, acesse a
+          aba{" "}
+          <a href="/mapa" className="text-caution underline">
+            Mapa da rodovia
+          </a>
+          .
         </p>
       </div>
 
-      <MapaComPainel pontos={mapaPontos} kmRealcado={trecho?.km ?? null} />
-
-      <div className="border-t border-asphalt-700 pt-8">
+      <div>
         <div className="flex flex-col gap-2 sm:max-w-md">
           <label
             htmlFor="trecho-select-dashboard"

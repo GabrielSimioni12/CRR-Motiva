@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import Link from "next/link";
 import MetricCard from "@/components/MetricCard";
 import ComposicaoDonut from "@/components/ComposicaoDonut";
 import KmPost from "@/components/KmPost";
@@ -44,12 +45,12 @@ export default function Home() {
           </p>
 
           <div className="mt-8 flex gap-4">
-            <a
-              href="#painel-dados"
+            <Link
+              href="/mapa"
               className="border border-caution bg-caution px-5 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-asphalt-900 hover:bg-caution/90"
             >
               Ver mapa da rodovia
-            </a>
+            </Link>
 
             <a
               href="#proposta"
@@ -114,17 +115,23 @@ export default function Home() {
         </section>
       </Reveal>
 
-      {/* MAPA / TENDÊNCIA / SIMULAÇÃO — sub-tabs, cada painel só monta
-          quando está ativo (mapa Leaflet é pesado pra manter montado à toa) */}
+      {/* TENDÊNCIA / SIMULAÇÃO — sub-tabs. O mapa completo vive em /mapa,
+          numa página própria (é pesado demais pra manter montado à toa
+          dentro do dashboard). */}
       <Reveal>
         <section className="border-t border-asphalt-700 py-12">
           <h2 className="font-display text-2xl font-semibold uppercase tracking-wide text-chalk">
-            Mapa, tendência e simulação
+            Tendência e simulação
           </h2>
           <p className="mt-1 font-sans text-sm text-chalkdim">
-            Explore o mapa da rodovia e a tendência de crescimento por trecho,
-            ou veja a simulação de cenário sazonal — cada uma numa aba, pra
-            não misturar dado de campo com projeção simulada.
+            Veja a tendência de crescimento por trecho, ou explore a
+            simulação de cenário sazonal — cada uma numa aba, pra não
+            misturar dado de campo com projeção simulada. Para ver todos os
+            pontos no mapa, acesse a aba{" "}
+            <Link href="/mapa" className="text-caution underline">
+              Mapa da rodovia
+            </Link>{" "}
+            no menu.
           </p>
           <div className="mt-6">
             <Suspense fallback={<p className="font-mono text-sm text-chalkdim">carregando...</p>}>
