@@ -42,7 +42,22 @@ function projetarPonto(p: PontoComId, semanas: number): PontoComId {
     return { ...p, prioridade, dias_estimados_ate_critico: diasRestantes };
 }
 
-export default function MapaComPainel({ pontos }: { pontos: MapaPonto[] }) {
+// Tolerância pra "realçar" pontos do mapa que correspondem a um trecho
+// selecionado em outro painel (ex: seletor de tendência). mapa.json e
+// prioridade.json não compartilham uma chave confiável entre si (achado
+// da auditoria), então em vez de prometer 1 ponto exato, realçamos o
+// cluster de pontos dentro dessa faixa de km — a malha de prioridade.json
+// usa passo de 0.5km, então 0.25 cobre "o mesmo poste de km" sem
+// alcançar o poste vizinho.
+const TOLERANCIA_KM_REALCE = 0.25;
+
+export default function MapaComPainel({
+    pontos,
+    kmRealcado,
+}: {
+    pontos: MapaPonto[];
+    kmRealcado?: number | null;
+}) {
     const pontosComId = useMemo<PontoComId[]>(
         () => pontos.map((p, i) => ({ ...p, id: i })),
         [pontos]
@@ -131,6 +146,15 @@ export default function MapaComPainel({ pontos }: { pontos: MapaPonto[] }) {
         return c;
     }, [pontosProjetados]);
 
+    const realcadosId = useMemo(() => {
+        if (kmRealcado == null) return undefined;
+        const ids = new Set<number>();
+        pontosFiltrados.forEach((p) => {
+            if (Math.abs(p.km_estimado - kmRealcado) <= TOLERANCIA_KM_REALCE) ids.add(p.id);
+        });
+        return ids;
+    }, [pontosFiltrados, kmRealcado]);
+
     return (
         <div className="flex flex-col gap-4">
             <div className="flex flex-wrap items-center justify-between gap-3 border border-asphalt-700 bg-asphalt-800 px-4 py-3">
@@ -189,6 +213,7 @@ export default function MapaComPainel({ pontos }: { pontos: MapaPonto[] }) {
                         pontos={pontosFiltrados}
                         selecionadoId={selecionado?.id ?? null}
                         onSelecionar={setSelecionado}
+                        realcadosId={realcadosId}
                     />
                     {pontosFiltrados.length === 0 && (
                         <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-asphalt-900/85">

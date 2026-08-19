@@ -1,10 +1,11 @@
-import Link from "next/link";
+import { Suspense } from "react";
 import MetricCard from "@/components/MetricCard";
 import ComposicaoDonut from "@/components/ComposicaoDonut";
 import KmPost from "@/components/KmPost";
 import TabelaUrgentes from "@/components/TabelaUrgentes";
 import HeroRodovia from "@/components/HeroRodovia";
 import Reveal from "@/components/Reveal";
+import PainelDados from "@/components/dashboard/PainelDados";
 import { getResumo, getTopUrgentes } from "@/lib/data";
 
 export default function Home() {
@@ -43,12 +44,12 @@ export default function Home() {
           </p>
 
           <div className="mt-8 flex gap-4">
-            <Link
-              href="/mapa"
+            <a
+              href="#painel-dados"
               className="border border-caution bg-caution px-5 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-asphalt-900 hover:bg-caution/90"
             >
               Ver mapa da rodovia
-            </Link>
+            </a>
 
             <a
               href="#proposta"
@@ -110,6 +111,26 @@ export default function Home() {
             metros, em 8 zonas de corte por trecho — canteiro central,
             lateral, marginal e dispositivos externos e internos.
           </p>
+        </section>
+      </Reveal>
+
+      {/* MAPA / TENDÊNCIA / SIMULAÇÃO — sub-tabs, cada painel só monta
+          quando está ativo (mapa Leaflet é pesado pra manter montado à toa) */}
+      <Reveal>
+        <section className="border-t border-asphalt-700 py-12">
+          <h2 className="font-display text-2xl font-semibold uppercase tracking-wide text-chalk">
+            Mapa, tendência e simulação
+          </h2>
+          <p className="mt-1 font-sans text-sm text-chalkdim">
+            Explore o mapa da rodovia e a tendência de crescimento por trecho,
+            ou veja a simulação de cenário sazonal — cada uma numa aba, pra
+            não misturar dado de campo com projeção simulada.
+          </p>
+          <div className="mt-6">
+            <Suspense fallback={<p className="font-mono text-sm text-chalkdim">carregando...</p>}>
+              <PainelDados />
+            </Suspense>
+          </div>
         </section>
       </Reveal>
 
