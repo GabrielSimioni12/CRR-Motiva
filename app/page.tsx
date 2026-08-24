@@ -11,7 +11,7 @@ import { getResumo, getTopUrgentes } from "@/lib/data";
 import GramaIlustracao from "@/components/ilustracoes/GramaIlustracao";
 import RotaIlustracao from "@/components/ilustracoes/RotaIlustracao";
 import AlertaIlustracao from "@/components/ilustracoes/AlertaIlustracao";
-
+import EsquemaRota from "@/components/EsquemaRota";
 export default function Home() {
   const resumo = getResumo();
   const urgentes = getTopUrgentes(8);
@@ -126,24 +126,21 @@ export default function Home() {
         </section>
       </Reveal>
 
-      {/* RÉGUA DE KM — elemento de assinatura */}
+           {/* ESQUEMA DE ROTA — elemento de assinatura, interativo com dado real */}
       <Reveal>
         <section className="py-6">
           <div className="km-rule mb-8" />
 
-          <div className="flex justify-between overflow-x-auto pb-2">
-            <KmPost km="0" label="início" />
-            <KmPost km="7" label="serra" />
-            <KmPost km="14" label="planalto" />
-            <KmPost km="21" label="vale" />
-            <KmPost km="29,3" label="fim" />
-          </div>
-
-          <p className="mt-6 font-sans text-sm text-chalkdim">
+          <h2 className="font-display text-xl font-semibold uppercase tracking-wide text-chalk">
+            Relevo da rota
+          </h2>
+          <p className="mt-1 mb-6 font-sans text-sm text-chalkdim">
             A SP-021 (Rodoanel Oeste) tem 29,3 km monitorados a cada 500
-            metros, em 8 zonas de corte por trecho — canteiro central,
-            lateral, marginal e dispositivos externos e internos.
+            metros. Toque em qualquer marco pra ver os dados reais daquele
+            trecho.
           </p>
+
+          <EsquemaRota />
         </section>
       </Reveal>
 
