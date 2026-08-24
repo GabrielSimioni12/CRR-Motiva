@@ -8,6 +8,9 @@ import HeroRodovia from "@/components/HeroRodovia";
 import Reveal from "@/components/Reveal";
 import PainelDados from "@/components/dashboard/PainelDados";
 import { getResumo, getTopUrgentes } from "@/lib/data";
+import GramaIlustracao from "@/components/ilustracoes/GramaIlustracao";
+import RotaIlustracao from "@/components/ilustracoes/RotaIlustracao";
+import AlertaIlustracao from "@/components/ilustracoes/AlertaIlustracao";
 
 export default function Home() {
   const resumo = getResumo();
@@ -62,17 +65,46 @@ export default function Home() {
         </div>
       </section>
 
-      {/* MÉTRICAS */}
-      <section className="grid grid-cols-2 gap-4 py-12 sm:grid-cols-3 md:grid-cols-5">
-        <MetricCard label="Trechos monitorados" value={resumo.total} atraso={0} />
-        <MetricCard label="Prioridade alta" value={resumo.alta} tone="alta" atraso={0.06} />
-        <MetricCard label="Prioridade média" value={resumo.media} tone="media" atraso={0.12} />
-        <MetricCard label="Prioridade baixa" value={resumo.baixa} tone="ok" atraso={0.18} />
+       {/* MÉTRICAS */}
+      <section className="grid grid-cols-1 gap-4 py-12 sm:grid-cols-2 lg:grid-cols-5">
+        <MetricCard
+          label="Trechos monitorados"
+          value={resumo.total}
+          atraso={0}
+          href="/mapa"
+          ilustracao={<RotaIlustracao />}
+        />
+        <MetricCard
+          label="Prioridade alta"
+          value={resumo.alta}
+          tone="alta"
+          atraso={0.06}
+          href="/mapa"
+          ilustracao={<GramaIlustracao nivel={3} />}
+        />
+        <MetricCard
+          label="Prioridade média"
+          value={resumo.media}
+          tone="media"
+          atraso={0.12}
+          href="/mapa"
+          ilustracao={<GramaIlustracao nivel={2} />}
+        />
+        <MetricCard
+          label="Prioridade baixa"
+          value={resumo.baixa}
+          tone="ok"
+          atraso={0.18}
+          href="/mapa"
+          ilustracao={<GramaIlustracao nivel={1} />}
+        />
         <MetricCard
           label="Críticos agora"
           value={resumo.criticosAgora}
           tone="alta"
           atraso={0.24}
+          href="/mapa"
+          ilustracao={<AlertaIlustracao />}
         />
       </section>
 
