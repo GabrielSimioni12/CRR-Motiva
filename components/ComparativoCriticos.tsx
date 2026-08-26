@@ -30,6 +30,7 @@ function useContador(alvo: number, atraso = 0, duracaoMs = 900) {
 export default function ComparativoCriticos({
   antes,
   depois,
+  
 }: {
   antes: number;
   depois: number;
