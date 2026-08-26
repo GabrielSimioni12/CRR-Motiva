@@ -12,6 +12,8 @@ import GramaIlustracao from "@/components/ilustracoes/GramaIlustracao";
 import RotaIlustracao from "@/components/ilustracoes/RotaIlustracao";
 import AlertaIlustracao from "@/components/ilustracoes/AlertaIlustracao";
 import EsquemaRota from "@/components/EsquemaRota";
+import ComparativoCriticos from "@/components/ComparativoCriticos";
+import { trechosPrioridade } from "@/lib/data";
 export default function Home() {
   const resumo = getResumo();
   const urgentes = getTopUrgentes(8);
@@ -20,6 +22,15 @@ export default function Home() {
     { valor: resumo.alta, cor: "#C4432C", label: "prioridade alta" },
     { valor: resumo.media, cor: "#D98A1F", label: "prioridade média" },
     { valor: resumo.baixa, cor: "#3F8F5F", label: "prioridade baixa" },
+  ];
+
+    const criticosAntes = trechosPrioridade.filter((t) => t.nivel_semana1 >= 3).length;
+  const criticosDepois = trechosPrioridade.filter((t) => t.nivel_semana2 >= 3).length;
+
+  const fatiasNivel = [
+    { valor: trechosPrioridade.filter((t) => t.nivel_semana2 === 1).length, cor: "#3F8F5F", label: "nível 1 (baixo)" },
+    { valor: trechosPrioridade.filter((t) => t.nivel_semana2 === 2).length, cor: "#D98A1F", label: "nível 2 (médio)" },
+    { valor: trechosPrioridade.filter((t) => t.nivel_semana2 === 3).length, cor: "#C4432C", label: "nível 3 (alto)" },
   ];
 
   return (
@@ -48,9 +59,9 @@ export default function Home() {
           </p>
 
           <div className="mt-8 flex gap-4">
-            <Link
+                        <Link
               href="/mapa"
-              className="border border-caution bg-caution px-5 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-asphalt-900 hover:bg-caution/90"
+              className="border border-caution bg-caution px-5 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-chalk hover:bg-caution/90"
             >
               Ver mapa da rodovia
             </Link>
@@ -108,7 +119,7 @@ export default function Home() {
         />
       </section>
 
-      {/* DISTRIBUIÇÃO */}
+           {/* DISTRIBUIÇÃO */}
       <Reveal>
         <section className="border-t border-asphalt-700 py-12">
           <h2 className="font-display text-xl font-semibold uppercase tracking-wide text-chalk">
@@ -120,8 +131,27 @@ export default function Home() {
             base na variação real entre as duas leituras de campo.
           </p>
 
-          <div className="mt-6">
-            <ComposicaoDonut fatias={fatias} total={resumo.total} />
+          <div className="mt-6 grid gap-4 md:grid-cols-3">
+            <div className="border border-asphalt-700 bg-asphalt-800 p-5">
+              <p className="mb-4 font-mono text-[11px] uppercase tracking-widest text-chalkdim">
+                prioridade atual
+              </p>
+              <ComposicaoDonut fatias={fatias} total={resumo.total} />
+            </div>
+
+            <div className="border border-asphalt-700 bg-asphalt-800 p-5">
+              <p className="mb-4 font-mono text-[11px] uppercase tracking-widest text-chalkdim">
+                nível de vegetação (20/03)
+              </p>
+              <ComposicaoDonut fatias={fatiasNivel} total={resumo.total} />
+            </div>
+
+            <div className="border border-asphalt-700 bg-asphalt-800 p-5">
+              <p className="mb-4 font-mono text-[11px] uppercase tracking-widest text-chalkdim">
+                evolução em uma semana
+              </p>
+              <ComparativoCriticos antes={criticosAntes} depois={criticosDepois} />
+            </div>
           </div>
         </section>
       </Reveal>

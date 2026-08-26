@@ -18,25 +18,34 @@ body {
 }
 
 ::selection {
-  background-color: #f2b705;
-  color: #1c1f22;
+  background-color: #4a5fe0;
+  color: #edede4;
 }
 
 :focus-visible {
-  outline: 2px solid #f2b705;
+  outline: 2px solid #4a5fe0;
   outline-offset: 2px;
 }
 
-/* dashed road-line divider, used as the page's signature element */
+/* linhas de rodovia — faixa central tracejada + linha de acostamento
+   sólida por baixo, imitando a marcação real de uma pista */
 .km-rule {
-  height: 3px;
+  height: 6px;
   background-image: repeating-linear-gradient(
-    90deg,
-    #f2b705 0px,
-    #f2b705 22px,
-    transparent 22px,
-    transparent 40px
-  );
+      90deg,
+      #4a5fe0 0px,
+      #4a5fe0 22px,
+      transparent 22px,
+      transparent 40px
+    ),
+    linear-gradient(#4a5fe0, #4a5fe0);
+  background-size:
+    100% 3px,
+    100% 1px;
+  background-position:
+    top,
+    bottom;
+  background-repeat: repeat-x, repeat-x;
 }
 
 .leaflet-container {
