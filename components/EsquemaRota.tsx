@@ -17,33 +17,67 @@ interface Marco {
   label: string;
   nome: string;
   Icone: typeof IconFlag;
-  x: number;
-  y: number;
+  corBase: string;
+  descricao: string;
 }
 
 const LARGURA_VB = 680;
 const ALTURA_VB = 190;
+const KM_TOTAL = 29.3;
 
 const MARCOS: Marco[] = [
-  { km: 0, label: "0", nome: "início", Icone: IconFlag, x: 40, y: 150 },
-  { km: 7, label: "7", nome: "serra", Icone: IconMountain, x: 280, y: 55 },
-  { km: 14, label: "14", nome: "planalto", Icone: IconRoad, x: 420, y: 165 },
-  { km: 21, label: "21", nome: "vale", Icone: IconTrendingDown, x: 540, y: 165 },
-  { km: 29.3, label: "29,3", nome: "fim", Icone: IconFlag2, x: 640, y: 40 },
+  {
+    km: 0,
+    label: "0",
+    nome: "início",
+    Icone: IconFlag,
+    corBase: "#4FA3C4",
+    descricao:
+      "Marca o km 0 da SP-021, onde o monitoramento começa. É o ponto de partida convencionado pra organizar a rota — não representa nenhuma característica especial do terreno.",
+  },
+  {
+    km: 7,
+    label: "7",
+    nome: "serra",
+    Icone: IconMountain,
+    corBase: "#8B5FBF",
+    descricao:
+      "Batizado assim porque esse trecho passa perto da Serra da Cantareira, entre Franco da Rocha e Caieiras — uma das poucas referências desse esquema baseada em geografia real.",
+  },
+  {
+    km: 14,
+    label: "14",
+    nome: "planalto",
+    Icone: IconRoad,
+    corBase: "#C98A3D",
+    descricao:
+      "Nome ilustrativo pra essa faixa mais central da rota — não corresponde a um levantamento topográfico oficial, é só ambientação visual do esquema.",
+  },
+  {
+    km: 21,
+    label: "21",
+    nome: "vale",
+    Icone: IconTrendingDown,
+    corBase: "#3E7EA6",
+    descricao:
+      "Outro nome ilustrativo, sugerindo variação de relevo ao longo da rota — não é dado oficial de elevação, só narrativa visual.",
+  },
+  {
+    km: KM_TOTAL,
+    label: "29,3",
+    nome: "fim",
+    Icone: IconFlag2,
+    corBase: "#C2588B",
+    descricao:
+      "Marca o km 29,3, o último trecho mapeado da SP-021 nesse levantamento.",
+  },
 ];
 
 const CAMINHO_D =
   "M 40 150 C 160 150, 160 55, 280 55 S 420 165, 540 165 S 610 40, 640 40";
 
-const JANELA_KM = 3.5;
 const RAIO_PROXIMIDADE = 22;
-
-const COR_HEX: Record<Prioridade, string> = {
-  alta: "#B0503A",
-  media: "#C98A3D",
-  baixa: "#6B8F5C",
-  sem_dado: "#5C6660",
-};
+const JANELA_KM = 3.5;
 const COR_CONCLUIDO = "#6B8F5C";
 
 function calcularDadosMarco(km: number) {
@@ -60,22 +94,19 @@ function calcularDadosMarco(km: number) {
   const previsao =
     menorDias === null ? "sem dado" : menorDias === 0 ? "já crítico" : `${menorDias} dias`;
 
-  const prioridadeDominante: Prioridade =
-    criticos > 0 ? "alta" : proximos.some((t) => t.prioridade === "media") ? "media" : "baixa";
-
-  return { trechosCount, criticos, semCortePct, previsao, prioridadeDominante };
+  return { trechosCount, criticos, semCortePct, previsao };
 }
 
 export default function EsquemaRota() {
   const router = useRouter();
   const [selecionadoKm, setSelecionadoKm] = useState<number | null>(null);
   const [marcoAtivo, setMarcoAtivo] = useState<number | null>(null);
-  const [concluidos, setConcluidos] = useState<Set<number>>(new Set());
+  const [concluidos, setConcluidos] = useState<Set<number>>(new Set([0]));
+  const [posicoes, setPosicoes] = useState<Record<number, { x: number; y: number }>>({});
 
   const pathFundoRef = useRef<SVGPathElement>(null);
   const pathFeitoRef = useRef<SVGPathElement>(null);
   const tratorRef = useRef<HTMLDivElement>(null);
-  const fracoesMarcosRef = useRef<Record<number, number>>({});
 
   const dadosPorMarco = useMemo(() => {
     const mapa = new Map<number, ReturnType<typeof calcularDadosMarco>>();
@@ -96,30 +127,17 @@ export default function EsquemaRota() {
     pathFeito.style.strokeDasharray = `${comprimento}`;
     pathFeito.style.strokeDashoffset = `${comprimento}`;
 
-    const AMOSTRAS = 300;
+    const novasPosicoes: Record<number, { x: number; y: number }> = {};
     MARCOS.forEach((m) => {
-      let melhorDist = Infinity;
-      let melhorFracao = 0;
-      for (let i = 0; i <= AMOSTRAS; i++) {
-        const fracao = i / AMOSTRAS;
-        const p = pathFundo.getPointAtLength(comprimento * fracao);
-        const dist = Math.hypot(p.x - m.x, p.y - m.y);
-        if (dist < melhorDist) {
-          melhorDist = dist;
-          melhorFracao = fracao;
-        }
-      }
-      fracoesMarcosRef.current[m.km] = melhorFracao;
+      const fracao = m.km / KM_TOTAL;
+      const p = pathFundo.getPointAtLength(comprimento * fracao);
+      novasPosicoes[m.km] = { x: p.x, y: p.y };
     });
+    setPosicoes(novasPosicoes);
 
-    const prefereReduzirMovimento = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (prefereReduzirMovimento) {
-      pathFeito.style.strokeDashoffset = "0";
-      const pFinal = pathFundo.getPointAtLength(comprimento);
-      trator.style.left = `${(pFinal.x / LARGURA_VB) * 100}%`;
-      trator.style.top = `${(pFinal.y / ALTURA_VB) * 100}%`;
-      return;
-    }
+    const pInicial = pathFundo.getPointAtLength(0);
+    trator.style.left = `${(pInicial.x / LARGURA_VB) * 100}%`;
+    trator.style.top = `${(pInicial.y / ALTURA_VB) * 100}%`;
 
     let t = 0;
     let tAnterior = 0;
@@ -129,7 +147,8 @@ export default function EsquemaRota() {
       t += 0.0016;
       if (t > 1) {
         t = 0;
-        setConcluidos(new Set());
+        tAnterior = 0;
+        setConcluidos(new Set([0]));
       }
 
       const p = pathFundo!.getPointAtLength(comprimento * t);
@@ -143,13 +162,13 @@ export default function EsquemaRota() {
       pathFeito!.style.strokeDashoffset = `${comprimento * (1 - t)}`;
 
       const proximo = MARCOS.find(
-        (m) => Math.hypot(m.x - p.x, m.y - p.y) < RAIO_PROXIMIDADE
+        (m) => Math.hypot((novasPosicoes[m.km]?.x ?? 0) - p.x, (novasPosicoes[m.km]?.y ?? 0) - p.y) < RAIO_PROXIMIDADE
       );
       setMarcoAtivo(proximo ? proximo.km : null);
 
       MARCOS.forEach((m) => {
-        const fracaoMarco = fracoesMarcosRef.current[m.km];
-        if (t >= fracaoMarco && tAnterior < fracaoMarco) {
+        const fracaoMarco = m.km / KM_TOTAL;
+        if (fracaoMarco > 0 && t >= fracaoMarco && tAnterior < fracaoMarco) {
           setConcluidos((prev) => new Set(prev).add(m.km));
         }
       });
@@ -213,11 +232,13 @@ export default function EsquemaRota() {
         </div>
 
         {MARCOS.map((m) => {
-          const dados = dadosPorMarco.get(m.km)!;
+          const pos = posicoes[m.km];
+          if (!pos) return null;
+
           const feito = concluidos.has(m.km);
-          const cor = feito ? COR_CONCLUIDO : COR_HEX[dados.prioridadeDominante];
-          const pctX = (m.x / LARGURA_VB) * 100;
-          const pctY = (m.y / ALTURA_VB) * 100;
+          const cor = feito ? COR_CONCLUIDO : m.corBase;
+          const pctX = (pos.x / LARGURA_VB) * 100;
+          const pctY = (pos.y / ALTURA_VB) * 100;
           const Icone = m.Icone;
           const pulsando = marcoAtivo === m.km;
 
@@ -228,7 +249,7 @@ export default function EsquemaRota() {
               style={{ left: `${pctX}%`, top: `${pctY}%` }}
               className="absolute -translate-x-1/2 -translate-y-1/2 text-center transition-transform hover:scale-110"
             >
-              <div className="relative mx-auto h-11 w-11">
+              <div className="relative mx-auto h-12 w-12">
                 {pulsando && (
                   <span
                     style={{ borderColor: cor }}
@@ -236,10 +257,10 @@ export default function EsquemaRota() {
                   />
                 )}
                 <div
-                  style={{ borderColor: cor, backgroundColor: `${cor}22` }}
-                  className="relative flex h-11 w-11 items-center justify-center rounded-full border-2 transition-colors duration-500"
+                  style={{ borderColor: cor, backgroundColor: `${cor}45`, boxShadow: `0 0 14px ${cor}55` }}
+                  className="relative flex h-12 w-12 items-center justify-center rounded-full border-[3px] transition-colors duration-500"
                 >
-                  <Icone size={22} color={cor} />
+                  <Icone size={24} color={cor} stroke={2.25} />
                 </div>
               </div>
               <p className="mt-1.5 font-mono text-[11px] uppercase text-chalkdim">{m.nome}</p>
@@ -252,7 +273,7 @@ export default function EsquemaRota() {
       <div className="mt-6 border border-asphalt-700 bg-asphalt-800 p-5">
         {!marcoSelecionado || !dadosSelecionado ? (
           <p className="font-sans text-sm text-chalkdim">
-            Toque num marco acima pra ver os dados reais daquele trecho da rota.
+            Toque num marco acima pra ver a descrição e os dados reais daquele trecho.
           </p>
         ) : (
           <>
@@ -261,7 +282,9 @@ export default function EsquemaRota() {
               {marcoSelecionado.label}
             </p>
 
-            <div className="mt-4 grid grid-cols-3 gap-4">
+            <p className="mt-2 font-sans text-sm text-chalkdim">{marcoSelecionado.descricao}</p>
+
+            <div className="mt-4 grid grid-cols-3 gap-4 border-t border-asphalt-700 pt-4">
               <div>
                 <p className="font-mono text-[11px] uppercase text-chalkdim">trechos aqui</p>
                 <p className="font-display text-xl font-semibold text-chalk">

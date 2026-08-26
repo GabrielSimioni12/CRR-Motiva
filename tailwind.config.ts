@@ -14,7 +14,7 @@ const config: Config = {
         },
         chalk: "#EDEDE4",
         chalkdim: "#A7ACA6",
-        caution: "#F2B705",
+        caution: "#4A5FE0",
         route: {
           ok: "#3F8F5F",
           media: "#D98A1F",
