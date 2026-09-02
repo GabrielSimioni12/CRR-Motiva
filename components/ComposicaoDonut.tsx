@@ -9,7 +9,9 @@ interface Fatia {
   label: string;
 }
 
-function useContador(alvo: number, duracaoMs = 900) {
+const INTERVALO_LOOP_MS = 6000;
+
+function useContador(alvo: number, duracaoMs = 700) {
   const [exibido, setExibido] = useState(0);
   useEffect(() => {
     let frame: number;
@@ -26,13 +28,7 @@ function useContador(alvo: number, duracaoMs = 900) {
   return exibido;
 }
 
-export default function ComposicaoDonut({
-  fatias,
-  total,
-}: {
-  fatias: Fatia[];
-  total: number;
-}) {
+function ConteudoDonut({ fatias, total }: { fatias: Fatia[]; total: number }) {
   const [destaque, setDestaque] = useState<string | null>(null);
   const totalExibido = useContador(total);
 
@@ -44,6 +40,25 @@ export default function ComposicaoDonut({
     <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:gap-8 sm:text-left">
       <svg width="160" height="160" viewBox="0 0 160 160">
         <circle cx="80" cy="80" r={raio} fill="none" stroke="#25282C" strokeWidth="18" />
+
+        <motion.circle
+          cx="80"
+          cy="80"
+          r={raio}
+          fill="none"
+          stroke="#4A5FE0"
+          strokeWidth="4"
+          strokeLinecap="round"
+          strokeDasharray={`${circunferencia * 0.22} ${circunferencia * 0.78}`}
+          initial={{ rotate: 0, opacity: 1 }}
+          animate={{ rotate: 360, opacity: [1, 1, 0] }}
+          transition={{
+            rotate: { repeat: Infinity, duration: 0.7, ease: "linear" },
+            opacity: { duration: 0.9, times: [0, 0.55, 1] },
+          }}
+          style={{ transformOrigin: "80px 80px" }}
+        />
+
         {fatias.map((f, i) => {
           const fracao = total > 0 ? f.valor / total : 0;
           const comprimento = fracao * circunferencia;
@@ -64,17 +79,16 @@ export default function ComposicaoDonut({
               strokeDasharray={`${comprimento} ${circunferencia - comprimento}`}
               strokeDashoffset={offset}
               strokeLinecap="butt"
-              initial={{ opacity: 0, scale: 0.7, rotate: -30 }}
+              initial={{ opacity: 0, scale: 0.7 }}
               animate={{
                 opacity: outroEmDestaque ? 0.35 : 1,
                 scale: 1,
-                rotate: 0,
                 strokeWidth: emDestaque ? 24 : 18,
               }}
               transition={{
-                opacity: { duration: 0.25 },
+                opacity: { duration: 0.25, delay: outroEmDestaque || emDestaque ? 0 : 0.5 + i * 0.1 },
                 strokeWidth: { type: "spring", stiffness: 300, damping: 18 },
-                default: { duration: 0.6, delay: i * 0.15, ease: [0.34, 1.56, 0.64, 1] },
+                scale: { duration: 0.5, delay: 0.5 + i * 0.1, ease: [0.34, 1.56, 0.64, 1] },
               }}
               style={{ transformOrigin: "80px 80px", cursor: "pointer" }}
               onMouseEnter={() => setDestaque(f.label)}
@@ -115,6 +129,23 @@ export default function ComposicaoDonut({
           );
         })}
       </div>
+    </div>
+  );
+}
+
+export default function ComposicaoDonut({ fatias, total }: { fatias: Fatia[]; total: number }) {
+  const [cicloId, setCicloId] = useState(0);
+  const [pausado, setPausado] = useState(false);
+
+  useEffect(() => {
+    if (pausado) return;
+    const id = setInterval(() => setCicloId((c) => c + 1), INTERVALO_LOOP_MS);
+    return () => clearInterval(id);
+  }, [pausado]);
+
+  return (
+    <div onMouseEnter={() => setPausado(true)} onMouseLeave={() => setPausado(false)}>
+      <ConteudoDonut key={cicloId} fatias={fatias} total={total} />
     </div>
   );
 }
