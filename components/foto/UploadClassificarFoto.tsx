@@ -48,6 +48,23 @@ function fileParaBase64(file: File): Promise<string> {
   });
 }
 
+// dispara o salvamento no banco sem travar a UI — se falhar, so loga no
+// console, nao interrompe a experiencia de quem esta usando a tela
+function salvarLeituraNoBanco(dados: {
+  local: string;
+  alturaCm: number;
+  nivel: number;
+  fonte: "foto" | "manual";
+  confianca?: string;
+  justificativa?: string;
+}) {
+  fetch("/api/leituras", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(dados),
+  }).catch((e) => console.error("Falha ao salvar leitura no banco:", e));
+}
+
 export default function UploadClassificarFoto() {
   const [arquivo, setArquivo] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -99,6 +116,15 @@ export default function UploadClassificarFoto() {
       } else {
         setResultado(data);
         setTimeout(() => setOverlayVisivel(true), 150);
+
+        salvarLeituraNoBanco({
+          local: arquivo.name || "Foto sem nome",
+          alturaCm: data.altura_estimada_cm,
+          nivel: data.nivel,
+          fonte: "foto",
+          confianca: data.confianca,
+          justificativa: data.justificativa,
+        });
       }
     } catch (e) {
       console.error("Falha ao classificar imagem:", e);

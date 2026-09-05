@@ -4,12 +4,13 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { IconTrendingDown, IconTrendingUp, IconMinus } from "@tabler/icons-react";
 
-function useContador(alvo: number, atraso = 0, duracaoMs = 900) {
+const INTERVALO_LOOP_MS = 6000;
+
+function useContador(alvo: number, atraso = 0, duracaoMs = 700) {
   const [exibido, setExibido] = useState(0);
   useEffect(() => {
     let frame: number;
-    let timeout: ReturnType<typeof setTimeout>;
-    timeout = setTimeout(() => {
+    const timeout = setTimeout(() => {
       const inicio = performance.now();
       function tick(agora: number) {
         const progresso = Math.min((agora - inicio) / duracaoMs, 1);
@@ -27,14 +28,7 @@ function useContador(alvo: number, atraso = 0, duracaoMs = 900) {
   return exibido;
 }
 
-export default function ComparativoCriticos({
-  antes,
-  depois,
-  
-}: {
-  antes: number;
-  depois: number;
-}) {
+function ConteudoComparativo({ antes, depois }: { antes: number; depois: number }) {
   const maior = Math.max(antes, depois, 1);
   const alturaMax = 90;
   const alturaAntes = (antes / maior) * alturaMax;
@@ -44,14 +38,15 @@ export default function ComparativoCriticos({
   const piorou = delta > 0;
   const corDelta = melhorou ? "#3F8F5F" : piorou ? "#C4432C" : "#A7ACA6";
 
-  const antesExibido = useContador(antes, 500);
-  const depoisExibido = useContador(depois, 900);
+  const antesExibido = useContador(antes, 300);
+  const depoisExibido = useContador(depois, 650);
 
   const xBarraAntes = 30;
   const xBarraDepois = 78;
   const yBase = 104;
   const yTopoAntes = yBase - alturaAntes;
   const yTopoDepois = yBase - alturaDepois;
+  const caminhoSeta = `M ${xBarraAntes + 12} ${yTopoAntes - 6} Q ${(xBarraAntes + xBarraDepois) / 2 + 6} ${Math.min(yTopoAntes, yTopoDepois) - 22}, ${xBarraDepois + 12} ${yTopoDepois - 6}`;
 
   return (
     <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:gap-8 sm:text-left">
@@ -59,7 +54,7 @@ export default function ComparativoCriticos({
         <line x1="10" y1={yBase} x2="120" y2={yBase} stroke="#32363B" strokeWidth="1" />
 
         <motion.path
-          d={`M ${xBarraAntes + 12} ${yTopoAntes - 6} Q ${(xBarraAntes + xBarraDepois) / 2 + 6} ${Math.min(yTopoAntes, yTopoDepois) - 22}, ${xBarraDepois + 12} ${yTopoDepois - 6}`}
+          d={caminhoSeta}
           fill="none"
           stroke={corDelta}
           strokeWidth="2"
@@ -67,22 +62,17 @@ export default function ComparativoCriticos({
           strokeDasharray="4 3"
           initial={{ pathLength: 0, opacity: 0 }}
           animate={{ pathLength: 1, opacity: 1 }}
-          transition={{ duration: 0.8, delay: 1.1, ease: "easeInOut" }}
+          transition={{ duration: 0.6, delay: 0.85, ease: "easeInOut" }}
         />
         <motion.circle
-          r="3"
+          cx={xBarraDepois + 12}
+          cy={yTopoDepois - 6}
+          r="3.5"
           fill={corDelta}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: [0, 1, 1, 0] }}
-          transition={{ duration: 1.4, delay: 1.1, times: [0, 0.15, 0.85, 1] }}
-        >
-          <animateMotion
-            dur="0.8s"
-            begin="1.1s"
-            fill="freeze"
-            path={`M ${xBarraAntes + 12} ${yTopoAntes - 6} Q ${(xBarraAntes + xBarraDepois) / 2 + 6} ${Math.min(yTopoAntes, yTopoDepois) - 22}, ${xBarraDepois + 12} ${yTopoDepois - 6}`}
-          />
-        </motion.circle>
+          initial={{ opacity: 0, scale: 0 }}
+          animate={{ opacity: 1, scale: [0, 1.4, 1] }}
+          transition={{ duration: 0.4, delay: 1.45 }}
+        />
 
         <motion.rect
           x={xBarraAntes}
@@ -91,7 +81,7 @@ export default function ComparativoCriticos({
           rx="2"
           initial={{ height: 0, y: yBase }}
           animate={{ height: alturaAntes, y: yTopoAntes }}
-          transition={{ type: "spring", stiffness: 140, damping: 14, delay: 0.3 }}
+          transition={{ type: "spring", stiffness: 150, damping: 15, delay: 0.2 }}
         />
         <motion.rect
           x={xBarraDepois}
@@ -100,7 +90,7 @@ export default function ComparativoCriticos({
           rx="2"
           initial={{ height: 0, y: yBase }}
           animate={{ height: alturaDepois, y: yTopoDepois }}
-          transition={{ type: "spring", stiffness: 140, damping: 14, delay: 0.7 }}
+          transition={{ type: "spring", stiffness: 150, damping: 15, delay: 0.55 }}
         />
 
         <text x={xBarraAntes + 12} y="118" textAnchor="middle" className="fill-chalkdim font-mono" style={{ fontSize: 9 }}>
@@ -122,7 +112,7 @@ export default function ComparativoCriticos({
         <motion.div
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ type: "spring", stiffness: 260, damping: 16, delay: 1.9 }}
+          transition={{ type: "spring", stiffness: 260, damping: 16, delay: 1.5 }}
           className="mt-2 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-mono text-xs"
           style={{ borderColor: `${corDelta}55`, backgroundColor: `${corDelta}18`, color: corDelta }}
         >
@@ -130,6 +120,23 @@ export default function ComparativoCriticos({
           {delta === 0 ? "sem variação" : `${delta > 0 ? "+" : ""}${delta} trechos`}
         </motion.div>
       </div>
+    </div>
+  );
+}
+
+export default function ComparativoCriticos({ antes, depois }: { antes: number; depois: number }) {
+  const [cicloId, setCicloId] = useState(0);
+  const [pausado, setPausado] = useState(false);
+
+  useEffect(() => {
+    if (pausado) return;
+    const id = setInterval(() => setCicloId((c) => c + 1), INTERVALO_LOOP_MS);
+    return () => clearInterval(id);
+  }, [pausado]);
+
+  return (
+    <div onMouseEnter={() => setPausado(true)} onMouseLeave={() => setPausado(false)}>
+      <ConteudoComparativo key={cicloId} antes={antes} depois={depois} />
     </div>
   );
 }
