@@ -1,6 +1,7 @@
 import UploadClassificarFoto from "@/components/foto/UploadClassificarFoto";
 import GuiaFoto from "@/components/foto/GuiaFoto";
 import LeituraManualForm from "@/components/foto/LeituraManualForm";
+import LeiturasRecentesFeed from "@/components/foto/LeiturasRecentesFeed";
 
 export default function ClassificarPorFotoPage() {
   return (
@@ -23,6 +24,7 @@ export default function ClassificarPorFotoPage() {
       <UploadClassificarFoto />
       <GuiaFoto />
       <LeituraManualForm />
+      <LeiturasRecentesFeed />
     </main>
   );
 }

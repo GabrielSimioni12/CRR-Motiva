@@ -12,6 +12,20 @@ interface LeituraManual {
   horario: string;
 }
 
+function salvarLeituraNoBanco(dados: {
+  local: string;
+  alturaCm: number;
+  nivel: number;
+  fonte: "foto" | "manual";
+  justificativa?: string;
+}) {
+  fetch("/api/leituras", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(dados),
+  }).catch((e) => console.error("Falha ao salvar leitura no banco:", e));
+}
+
 export default function LeituraManualForm() {
   const [local, setLocal] = useState("");
   const [altura, setAltura] = useState("");
@@ -33,6 +47,14 @@ export default function LeituraManualForm() {
     setLeituras((prev) => [nova, ...prev]);
     setLocal("");
     setAltura("");
+
+    salvarLeituraNoBanco({
+      local: nova.local,
+      alturaCm: nova.alturaCm,
+      nivel: resultado.nivel,
+      fonte: "manual",
+      justificativa: resultado.recomendacao,
+    });
   }
 
   return (
@@ -106,9 +128,8 @@ export default function LeituraManualForm() {
       )}
 
       <p className="mt-6 font-sans text-xs text-chalkdim">
-        Essas leituras ficam só nesta sessão do navegador (não são salvas
-        em nenhum banco ainda) — próximo passo é persistir isso e juntar
-        com os dados reais da SP-021 no mesmo painel.
+        Essas leituras já são salvas no banco de dados da plataforma, além
+        de aparecerem aqui nesta sessão.
       </p>
     </section>
   );
