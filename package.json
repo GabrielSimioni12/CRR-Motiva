@@ -10,6 +10,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.1.0",
     "@tabler/icons-react": "^3.46.0",
     "framer-motion": "^13.1.0",
     "html2canvas": "^1.4.1",
