@@ -99,10 +99,19 @@ export default function MapaTendenciaPanel({
         )}
       </div>
 
-      <div className="border-t border-asphalt-700 pt-8">
+            <div className="border-t border-asphalt-700 pt-8">
         <h3 className="font-display text-sm font-semibold uppercase tracking-wide text-chalkdim">
           Distribuição adicional
         </h3>
+        <p className="mt-1 max-w-2xl font-sans text-sm text-chalkdim">
+          Hoje a Motiva decide qual equipamento mandar pra cada trecho sem
+          visibilidade centralizada disso. Esses dois gráficos respondem
+          direto: <strong className="text-chalk">que tipo de equipamento</strong> a
+          operação precisa ter disponível, e{" "}
+          <strong className="text-chalk">em que zona da via</strong> os
+          problemas mais críticos se concentram — informação que hoje exige
+          cruzar planilha manualmente.
+        </p>
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           <GraficoBarras titulo="pontos por tipo de equipamento de roçada" dados={graficoTipoRocada} cor="#D98A1F" />
           <GraficoBarras titulo="trechos críticos por zona de corte" dados={graficoZonaCritica} cor="#C4432C" />
