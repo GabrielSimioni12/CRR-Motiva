@@ -7,6 +7,7 @@ import PrioridadeBadge from "@/components/PrioridadeBadge";
 import { mapaPontos, trechosPrioridade } from "@/lib/data";
 import { descreverTendencia } from "@/lib/tendencia";
 import { porTipoRocada, criticosPorZona } from "@/lib/graficosDashboard";
+import SeletorTrecho from "./SeletorTrecho";
 
 const PESO_PRIORIDADE: Record<string, number> = { alta: 0, media: 1, baixa: 2, sem_dado: 3 };
 
@@ -56,26 +57,11 @@ export default function MapaTendenciaPanel({
       </div>
 
       <div>
-        <div className="flex flex-col gap-2 sm:max-w-md">
-          <label
-            htmlFor="trecho-select-dashboard"
-            className="font-mono text-[11px] uppercase tracking-widest text-chalkdim"
-          >
-            Ver tendência do trecho
-          </label>
-          <select
-            id="trecho-select-dashboard"
-            value={trecho?.chave ?? ""}
-            onChange={(e) => onSelecionarTrecho(e.target.value)}
-            className="border border-asphalt-600 bg-asphalt-900 px-3 py-2 font-sans text-sm text-chalk outline-none focus:border-caution"
-          >
-            {trechosOrdenados.map((t) => (
-              <option key={t.chave} value={t.chave}>
-                {t.descricao} — km {t.km.toFixed(1)} ({t.prioridade})
-              </option>
-            ))}
-          </select>
-        </div>
+               <SeletorTrecho
+          opcoes={trechosOrdenados}
+          valorSelecionado={trecho?.chave ?? ""}
+          onSelecionar={onSelecionarTrecho}
+        />
 
         {trecho && (
           <div className="mt-6">
@@ -99,10 +85,19 @@ export default function MapaTendenciaPanel({
         )}
       </div>
 
-      <div className="border-t border-asphalt-700 pt-8">
+            <div className="border-t border-asphalt-700 pt-8">
         <h3 className="font-display text-sm font-semibold uppercase tracking-wide text-chalkdim">
           Distribuição adicional
         </h3>
+        <p className="mt-1 max-w-2xl font-sans text-sm text-chalkdim">
+          Hoje a Motiva decide qual equipamento mandar pra cada trecho sem
+          visibilidade centralizada disso. Esses dois gráficos respondem
+          direto: <strong className="text-chalk">que tipo de equipamento</strong> a
+          operação precisa ter disponível, e{" "}
+          <strong className="text-chalk">em que zona da via</strong> os
+          problemas mais críticos se concentram — informação que hoje exige
+          cruzar planilha manualmente.
+        </p>
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           <GraficoBarras titulo="pontos por tipo de equipamento de roçada" dados={graficoTipoRocada} cor="#D98A1F" />
           <GraficoBarras titulo="trechos críticos por zona de corte" dados={graficoZonaCritica} cor="#C4432C" />

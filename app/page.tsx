@@ -40,22 +40,16 @@ export default function Home() {
         <HeroRodovia />
 
         <div className="relative z-10">
-          <p className="font-mono text-xs uppercase tracking-widest text-caution">
+                    <p className="font-mono text-xs uppercase tracking-widest text-caution">
             Challenge CCR Motiva — FIAP
           </p>
 
-          <h1 className="mt-4 max-w-3xl font-display text-5xl font-semibold leading-[1.05] text-chalk">
-            A roçada não devia obedecer a um calendário.
-            <br />
-            Devia obedecer à grama.
+          <h1 className="mt-4 max-w-2xl font-display text-4xl font-semibold leading-[1.05] text-chalk">
+            A roçada não devia obedecer a um calendário. Devia obedecer à grama.
           </h1>
 
-          <p className="mt-6 max-w-2xl font-sans text-base leading-relaxed text-chalkdim">
-            Hoje o corte de vegetação na SP-021 segue um cronograma fixo, sem
-            considerar se o trecho realmente precisa. Este painel cruza duas
-            leituras reais de campo — 13/03 e 20/03 — para calcular a taxa de
-            crescimento de cada trecho e decidir, com dado, quando e onde
-            intervir.
+          <p className="mt-4 max-w-xl font-sans text-sm leading-relaxed text-chalkdim">
+            Priorização de corte na SP-021 baseada em dado real de campo, não em cronograma fixo.
           </p>
 
           <div className="mt-8 flex gap-4">
