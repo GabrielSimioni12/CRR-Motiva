@@ -7,6 +7,7 @@ import PrioridadeBadge from "@/components/PrioridadeBadge";
 import { mapaPontos, trechosPrioridade } from "@/lib/data";
 import { descreverTendencia } from "@/lib/tendencia";
 import { porTipoRocada, criticosPorZona } from "@/lib/graficosDashboard";
+import SeletorTrecho from "./SeletorTrecho";
 
 const PESO_PRIORIDADE: Record<string, number> = { alta: 0, media: 1, baixa: 2, sem_dado: 3 };
 
@@ -56,26 +57,11 @@ export default function MapaTendenciaPanel({
       </div>
 
       <div>
-        <div className="flex flex-col gap-2 sm:max-w-md">
-          <label
-            htmlFor="trecho-select-dashboard"
-            className="font-mono text-[11px] uppercase tracking-widest text-chalkdim"
-          >
-            Ver tendência do trecho
-          </label>
-          <select
-            id="trecho-select-dashboard"
-            value={trecho?.chave ?? ""}
-            onChange={(e) => onSelecionarTrecho(e.target.value)}
-            className="border border-asphalt-600 bg-asphalt-900 px-3 py-2 font-sans text-sm text-chalk outline-none focus:border-caution"
-          >
-            {trechosOrdenados.map((t) => (
-              <option key={t.chave} value={t.chave}>
-                {t.descricao} — km {t.km.toFixed(1)} ({t.prioridade})
-              </option>
-            ))}
-          </select>
-        </div>
+               <SeletorTrecho
+          opcoes={trechosOrdenados}
+          valorSelecionado={trecho?.chave ?? ""}
+          onSelecionar={onSelecionarTrecho}
+        />
 
         {trecho && (
           <div className="mt-6">
