@@ -22,12 +22,31 @@ const FILTROS: { valor: Prioridade; label: string; cor: string }[] = [
     { valor: "sem_dado", label: LABEL_PRIORIDADE.sem_dado, cor: "text-chalkdim" },
 ];
 
+const OPCOES_SALTO = [1, 4, 8];
+
 type PontoComId = MapaPonto & { id: number };
 
-function projetarPonto(p: PontoComId, semanas: number): PontoComId {
-    if (semanas <= 0 || p.dias_estimados_ate_critico === null) return p;
+// Pontos sem taxa de crescimento real medida (dado de só 1 semana, sem
+// variação registrada) recebem uma taxa mínima ASSUMIDA pra fins de
+// simulação — sem isso, eles ficariam "parados pra sempre" mesmo depois
+// de meses sem corte, o que não é realista (grama sempre volta a
+// crescer). Isso é uma estimativa ilustrativa da simulação, não dado
+// medido — por isso a interface já deixa claro que é "simulação".
+const DIAS_ASSUMIDOS_POR_NIVEL = 40;
 
-    const diasRestantes = p.dias_estimados_ate_critico - semanas * 7;
+function projetarPonto(p: PontoComId, semanas: number): PontoComId {
+    if (semanas <= 0) return p;
+
+    let diasBase: number;
+    if (p.dias_estimados_ate_critico !== null && !Number.isNaN(Number(p.dias_estimados_ate_critico))) {
+        diasBase = Number(p.dias_estimados_ate_critico);
+    } else {
+        const nivelAtual = p.nivel_atual_max ?? 1;
+        const gapAteCritico = Math.max(3 - nivelAtual, 0.3);
+        diasBase = gapAteCritico * DIAS_ASSUMIDOS_POR_NIVEL;
+    }
+
+    const diasRestantes = diasBase - semanas * 7;
     let prioridade: Prioridade = p.prioridade;
 
     if (diasRestantes <= 0) {
@@ -42,13 +61,6 @@ function projetarPonto(p: PontoComId, semanas: number): PontoComId {
     return { ...p, prioridade, dias_estimados_ate_critico: diasRestantes };
 }
 
-// Tolerância pra "realçar" pontos do mapa que correspondem a um trecho
-// selecionado em outro painel (ex: seletor de tendência). mapa.json e
-// prioridade.json não compartilham uma chave confiável entre si (achado
-// da auditoria), então em vez de prometer 1 ponto exato, realçamos o
-// cluster de pontos dentro dessa faixa de km — a malha de prioridade.json
-// usa passo de 0.5km, então 0.25 cobre "o mesmo poste de km" sem
-// alcançar o poste vizinho.
 const TOLERANCIA_KM_REALCE = 0.25;
 
 export default function MapaComPainel({
@@ -71,6 +83,8 @@ export default function MapaComPainel({
     const [semanaSimulada, setSemanaSimulada] = useState(0);
     const [revelados, setRevelados] = useState<Set<number>>(new Set());
     const [animando, setAnimando] = useState(false);
+    const [mudaramAgora, setMudaramAgora] = useState<Set<number>>(new Set());
+    const [resumoUltimaSimulacao, setResumoUltimaSimulacao] = useState<string | null>(null);
     const alvoRef = useRef(0);
     const intervaloRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -86,12 +100,14 @@ export default function MapaComPainel({
         });
     }
 
-    function simularProximaSemana() {
+    function simularSemanas(qtdSemanas: number) {
         if (animando) return;
-        const alvo = semanaSimulada + 1;
+        const alvo = semanaSimulada + qtdSemanas;
         alvoRef.current = alvo;
         setAnimando(true);
         setRevelados(new Set());
+        setMudaramAgora(new Set());
+        setResumoUltimaSimulacao(null);
 
         const ordem = [...pontosComId]
             .sort((a, b) => a.km_estimado - b.km_estimado)
@@ -109,9 +125,29 @@ export default function MapaComPainel({
             });
             if (i >= ordem.length) {
                 if (intervaloRef.current) clearInterval(intervaloRef.current);
-                setSemanaSimulada(alvoRef.current);
+
+                const idsMudaram = new Set<number>();
+                let novosCriticos = 0;
+                pontosComId.forEach((p) => {
+                    const antes = projetarPonto(p, semanaSimulada);
+                    const depois = projetarPonto(p, alvo);
+                    if (antes.prioridade !== depois.prioridade) {
+                        idsMudaram.add(p.id);
+                        if (depois.prioridade === "alta" && antes.prioridade !== "alta") {
+                            novosCriticos++;
+                        }
+                    }
+                });
+
+                setMudaramAgora(idsMudaram);
+                setSemanaSimulada(alvo);
                 setAnimando(false);
                 setRevelados(new Set());
+                setResumoUltimaSimulacao(
+                    idsMudaram.size === 0
+                        ? `Nenhum trecho mudou de status nessas ${qtdSemanas} semana${qtdSemanas > 1 ? "s" : ""} — os pontos parados já não têm crescimento projetado.`
+                        : `${idsMudaram.size} trecho${idsMudaram.size > 1 ? "s" : ""} mudou${idsMudaram.size > 1 ? "ram" : ""} de status${novosCriticos > 0 ? `, ${novosCriticos} agora crítico${novosCriticos > 1 ? "s" : ""}` : ""}.`
+                );
             }
         }, 18);
     }
@@ -121,6 +157,8 @@ export default function MapaComPainel({
         setAnimando(false);
         setRevelados(new Set());
         setSemanaSimulada(0);
+        setMudaramAgora(new Set());
+        setResumoUltimaSimulacao(null);
     }
 
     const pontosProjetados = useMemo(() => {
@@ -168,7 +206,7 @@ export default function MapaComPainel({
                             : `simulação: +${semanaSimulada} semana${semanaSimulada > 1 ? "s" : ""} de crescimento`}
                     </span>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                     {semanaSimulada > 0 && (
                         <button
                             onClick={reiniciarSimulacao}
@@ -178,15 +216,24 @@ export default function MapaComPainel({
                             reiniciar
                         </button>
                     )}
-                    <button
-                        onClick={simularProximaSemana}
-                        disabled={animando}
-                        className="border border-caution bg-caution px-3 py-1.5 font-display text-xs font-semibold uppercase tracking-wide text-asphalt-900 hover:bg-caution/90 disabled:opacity-50"
-                    >
-                        {animando ? "simulando..." : "simular +1 semana"}
-                    </button>
+                    {OPCOES_SALTO.map((qtd) => (
+                        <button
+                            key={qtd}
+                            onClick={() => simularSemanas(qtd)}
+                            disabled={animando}
+                            className="border border-caution bg-caution px-3 py-1.5 font-display text-xs font-semibold uppercase tracking-wide text-asphalt-900 hover:bg-caution/90 disabled:opacity-50"
+                        >
+                            {animando ? "simulando..." : `simular +${qtd} semana${qtd > 1 ? "s" : ""}`}
+                        </button>
+                    ))}
                 </div>
             </div>
+
+            {resumoUltimaSimulacao && (
+                <div className="border border-caution/40 bg-caution/10 px-4 py-2.5 font-sans text-sm text-caution">
+                    {resumoUltimaSimulacao}
+                </div>
+            )}
 
             <div className="flex flex-wrap items-center gap-2">
                 <span className="mr-2 font-mono text-[11px] uppercase tracking-widest text-chalkdim">
@@ -214,6 +261,7 @@ export default function MapaComPainel({
                         selecionadoId={selecionado?.id ?? null}
                         onSelecionar={setSelecionado}
                         realcadosId={realcadosId}
+                        mudaramAgoraId={mudaramAgora}
                     />
                     {pontosFiltrados.length === 0 && (
                         <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-asphalt-900/85">

@@ -18,19 +18,22 @@ interface Props {
   selecionadoId: number | null;
   onSelecionar: (ponto: MapaPonto & { id: number }) => void;
   realcadosId?: Set<number>;
+  mudaramAgoraId?: Set<number>;
 }
 
-// Margem de segurança ao redor dos pontos reais da rota, em graus
-// (~0.02 graus equivale a pouco mais de 2km, o suficiente pra dar
-// respiro visual sem deixar o mapa "fugir" pra fora do trecho).
 const MARGEM = 0.02;
 
-export default function MapaRodovia({ pontos, selecionadoId, onSelecionar, realcadosId }: Props) {
+export default function MapaRodovia({
+  pontos,
+  selecionadoId,
+  onSelecionar,
+  realcadosId,
+  mudaramAgoraId,
+}: Props) {
   const [tilesComErro, setTilesComErro] = useState(false);
 
   const { centro, bounds } = useMemo(() => {
     if (pontos.length === 0) {
-      // fallback: centro aproximado da SP-021 caso ainda não haja pontos carregados
       return {
         centro: [-23.49, -46.79] as [number, number],
         bounds: undefined as LatLngBoundsExpression | undefined,
@@ -85,16 +88,25 @@ export default function MapaRodovia({ pontos, selecionadoId, onSelecionar, realc
         {pontos.map((p) => {
           const selecionado = p.id === selecionadoId;
           const realcado = !selecionado && (realcadosId?.has(p.id) ?? false);
+          const mudouAgora = !selecionado && (mudaramAgoraId?.has(p.id) ?? false);
+
           return (
             <CircleMarker
               key={p.id}
               center={[p.centroid_lat, p.centroid_lon]}
-              radius={selecionado ? 8 : realcado ? 7 : 5}
+              radius={selecionado ? 8 : realcado || mudouAgora ? 8 : 5}
               pathOptions={{
-                color: selecionado ? "#EDEDE4" : realcado ? "#F2B705" : COR[p.prioridade],
+                color: selecionado
+                  ? "#EDEDE4"
+                  : mudouAgora
+                    ? "#EDEDE4"
+                    : realcado
+                      ? "#F2B705"
+                      : COR[p.prioridade],
                 fillColor: COR[p.prioridade],
                 fillOpacity: 0.85,
-                weight: selecionado ? 2 : realcado ? 3 : 1,
+                weight: selecionado || mudouAgora || realcado ? 3 : 1,
+                className: mudouAgora ? "marcador-mudou" : undefined,
               }}
               eventHandlers={{
                 click: () => onSelecionar(p),
@@ -103,6 +115,28 @@ export default function MapaRodovia({ pontos, selecionadoId, onSelecionar, realc
           );
         })}
       </MapContainer>
+
+      <style jsx global>{`
+        .marcador-mudou {
+          animation: marcadorPulso 1.1s ease-out infinite;
+        }
+        @keyframes marcadorPulso {
+          0% {
+            filter: drop-shadow(0 0 0px rgba(237, 237, 228, 0.9));
+          }
+          50% {
+            filter: drop-shadow(0 0 6px rgba(237, 237, 228, 0.9));
+          }
+          100% {
+            filter: drop-shadow(0 0 0px rgba(237, 237, 228, 0.9));
+          }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .marcador-mudou {
+            animation: none;
+          }
+        }
+      `}</style>
     </div>
   );
 }
