@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import ToastAlertas from "./ToastAlertas";
 import SinoAlertas from "./SinoAlertas";
 import { useAlertas } from "@/lib/useAlertas";
+import { MARCA } from "@/lib/marca";
 
 const LINKS = [
   { href: "/", label: "Dashboard" },
@@ -37,13 +39,23 @@ export default function Nav() {
 
       <header className="sticky top-0 z-40 border-b border-asphalt-700 bg-asphalt-900/95 backdrop-blur">
         <div className="km-rule" />
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <Link href="/" className="flex items-baseline gap-2">
-            <span className="font-display text-lg font-semibold uppercase tracking-wide text-chalk">
-              SP-021
-            </span>
-            <span className="font-mono text-xs text-chalkdim">
-              controle de vegetação
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
+          <Link href="/" className="flex items-center gap-3">
+            <Image
+              src="/FavIcon/logo_nav_escuro.png"
+              alt={`Logo ${MARCA.nome}`}
+              width={67}
+              height={48}
+              priority
+              className="h-12 w-auto shrink-0"
+            />
+            <span className="flex items-baseline gap-2">
+              <span className="font-display text-xl font-semibold tracking-wide text-chalk">
+                {MARCA.nome}
+              </span>
+              <span className="font-mono text-xs uppercase text-chalkdim">
+                {MARCA.secundario}
+              </span>
             </span>
           </Link>
 

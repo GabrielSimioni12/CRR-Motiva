@@ -13,8 +13,29 @@ html {
 }
 
 body {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
   background-color: #1c1f22;
   color: #edede4;
+}
+
+/* fundo: grama discreta no fim da página, na faixa vazia abaixo do conteúdo */
+body::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 96px;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    url("/fundo/grama-frente.svg"),
+    url("/fundo/grama-tras.svg");
+  background-repeat: repeat-x, repeat-x;
+  background-position: left bottom, 260px bottom;
+  background-size: 480px 60px, 617px 96px;
 }
 
 ::selection {
@@ -25,6 +46,43 @@ body {
 :focus-visible {
   outline: 2px solid #4a5fe0;
   outline-offset: 2px;
+}
+
+/* scroll personalizado — Chrome, Edge e Safari */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1c1f22;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3a3f44;
+  border-radius: 999px;
+  border: 2px solid #1c1f22;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #565d64;
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: #6b737b;
+}
+
+::-webkit-scrollbar-corner {
+  background: #1c1f22;
+}
+
+/* scroll personalizado — Firefox */
+@supports (-moz-appearance: none) {
+  html,
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #3a3f44 #1c1f22;
+  }
 }
 
 /* linhas de rodovia — faixa central tracejada + linha de acostamento
