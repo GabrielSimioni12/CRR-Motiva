@@ -2,14 +2,21 @@ import type { Metadata } from "next";
 import { Oswald, Inter, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import Nav from "@/components/Nav";
+import TratorScroll from "@/components/TratorScroll";
+import { MARCA } from "@/lib/marca";
 
 const oswald = Oswald({ subsets: ["latin"], variable: "--font-display", weight: ["400", "500", "600", "700"] });
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans", weight: ["400", "500", "600"] });
 const plexMono = IBM_Plex_Mono({ subsets: ["latin"], variable: "--font-mono", weight: ["400", "500"] });
 
 export const metadata: Metadata = {
-  title: "SP-021 — Controle de Vegetação",
-  description: "Priorização inteligente de roçada para o Rodoanel Oeste (SP-021)",
+  title: `${MARCA.nome} | ${MARCA.secundario}`,
+  description: MARCA.descricao,
+  icons: {
+    icon: "/FavIcon/icon_v3.png",
+    shortcut: "/FavIcon/icon_v3.png",
+    apple: "/FavIcon/apple_icon_v3.png",
+  },
 };
 
 export default function RootLayout({
@@ -22,6 +29,7 @@ export default function RootLayout({
       <body className="font-sans antialiased">
         <Nav />
         {children}
+        <TratorScroll />
       </body>
     </html>
   );

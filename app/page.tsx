@@ -5,6 +5,7 @@ import ComposicaoDonut from "@/components/ComposicaoDonut";
 import KmPost from "@/components/KmPost";
 import TabelaUrgentes from "@/components/TabelaUrgentes";
 import HeroRodovia from "@/components/HeroRodovia";
+import ParceirosHero from "@/components/ParceirosHero";
 import Reveal from "@/components/Reveal";
 import PainelDados from "@/components/dashboard/PainelDados";
 import { getResumo, getTopUrgentes } from "@/lib/data";
@@ -14,6 +15,7 @@ import AlertaIlustracao from "@/components/ilustracoes/AlertaIlustracao";
 import EsquemaRota from "@/components/EsquemaRota";
 import ComparativoCriticos from "@/components/ComparativoCriticos";
 import { trechosPrioridade } from "@/lib/data";
+
 export default function Home() {
   const resumo = getResumo();
   const urgentes = getTopUrgentes(8);
@@ -24,7 +26,7 @@ export default function Home() {
     { valor: resumo.baixa, cor: "#3F8F5F", label: "prioridade baixa" },
   ];
 
-    const criticosAntes = trechosPrioridade.filter((t) => t.nivel_semana1 >= 3).length;
+  const criticosAntes = trechosPrioridade.filter((t) => t.nivel_semana1 >= 3).length;
   const criticosDepois = trechosPrioridade.filter((t) => t.nivel_semana2 >= 3).length;
 
   const fatiasNivel = [
@@ -40,9 +42,11 @@ export default function Home() {
         <HeroRodovia />
 
         <div className="relative z-10">
-                    <p className="font-mono text-xs uppercase tracking-widest text-caution">
+          <p className="font-mono text-xs uppercase tracking-widest text-caution">
             Challenge CCR Motiva — FIAP
           </p>
+
+          <ParceirosHero />
 
           <h1 className="mt-4 max-w-2xl font-display text-4xl font-semibold leading-[1.05] text-chalk">
             A roçada não devia obedecer a um calendário. Devia obedecer à grama.
@@ -53,7 +57,7 @@ export default function Home() {
           </p>
 
           <div className="mt-8 flex gap-4">
-                        <Link
+            <Link
               href="/mapa"
               className="border border-caution bg-caution px-5 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-chalk hover:bg-caution/90"
             >
@@ -70,7 +74,7 @@ export default function Home() {
         </div>
       </section>
 
-       {/* MÉTRICAS */}
+      {/* MÉTRICAS */}
       <section className="grid grid-cols-1 gap-4 py-12 sm:grid-cols-2 lg:grid-cols-5">
         <MetricCard
           label="Trechos monitorados"
@@ -113,7 +117,7 @@ export default function Home() {
         />
       </section>
 
-           {/* DISTRIBUIÇÃO */}
+      {/* DISTRIBUIÇÃO */}
       <Reveal>
         <section className="border-t border-asphalt-700 py-12">
           <h2 className="font-display text-xl font-semibold uppercase tracking-wide text-chalk">
@@ -150,7 +154,7 @@ export default function Home() {
         </section>
       </Reveal>
 
-           {/* ESQUEMA DE ROTA — elemento de assinatura, interativo com dado real */}
+      {/* ESQUEMA DE ROTA — elemento de assinatura, interativo com dado real */}
       <Reveal>
         <section className="py-6">
           <div className="km-rule mb-8" />
